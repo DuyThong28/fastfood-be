@@ -3,7 +3,7 @@ import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { MAX_ITEMS_PER_PAGE } from 'src/constants/constraints';
 import { ORDER } from 'src/constants/enum';
 
-export class PaginationResponse {
+export class PaginationOptions {
   @IsEnum(ORDER)
   @IsOptional()
   order?: ORDER = ORDER.DESC;
