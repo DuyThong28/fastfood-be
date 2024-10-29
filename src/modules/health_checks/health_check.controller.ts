@@ -4,6 +4,7 @@ import {
   HttpHealthIndicator,
   HealthCheck,
 } from '@nestjs/terminus';
+import { ResponseObject } from 'src/utils/object.response';
 
 @Controller('health')
 export class HealthController {
@@ -14,9 +15,10 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
-  check() {
-    return this.health.check([
+  async check() {
+    const result = await this.health.check([
       () => this.http.pingCheck('nestjs-docs', 'https://docs.nestjs.com'),
     ]);
+    return ResponseObject.create('Health Check', result);
   }
 }
