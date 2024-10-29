@@ -22,7 +22,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(helmet());
-  app.use(cookieParser);
+  app.use(cookieParser());
   app.setGlobalPrefix(END_POINTS.BASE);
   app.useGlobalPipes(
     new ValidationPipe({
@@ -37,7 +37,7 @@ async function bootstrap() {
     app.useGlobalInterceptors(new LoggingInterceptor());
   }
   SwaggerModule.setup('docs', app, document);
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 8081);
   console.log(`Server running on http://localhost:${port || 8081}/docs`);
 }
 bootstrap();
