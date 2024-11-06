@@ -19,7 +19,9 @@ model User {
   password     String
   phone        String?  @default("")
   name         String
-  image        String
+  gender       Gender
+  avatarUrl    String   @map("avatar_url")
+  birthDate    DateTime @map("birth_date")
   address      String   @default("")
   role         UserRole @default(USER)
   refreshToken String?  @map("refresh_token")
@@ -147,4 +149,9 @@ enum OrderStatus {
   CONFIRMED
   DELIVERED
   CANCELLED
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
