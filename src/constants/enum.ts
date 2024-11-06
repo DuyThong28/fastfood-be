@@ -21,6 +21,12 @@ export const ORDER_STATUS = {
   SUCCESS: 'SUCCESS',
   REJECT: 'REJECT',
 };
+
+export enum BOOKSTATUS {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
 export enum GENDER {
   MALE = 'MALE',
   FEMALE = 'FEMALE',

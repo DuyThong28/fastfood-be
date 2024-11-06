@@ -5,6 +5,12 @@ export const DOCUMENTATION = {
   PREFIX: 'api/v1/',
   TAGS: {
     AUTH: 'AUTH',
-    USER: 'USER',
+    USERS: 'USERS',
+    BOOKS: 'BOOKS',
+    AUTHORS: 'AUTHORS',
+    CATEGORIES: 'CATEGORIES',
+    CARTS: 'CART',
+    CART_ITEMS: 'CART_ITEMS',
+    COMMENT: 'COMMENT',
   },
 };
