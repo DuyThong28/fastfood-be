@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import { END_POINTS } from './constants/end_points';
 import { ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,6 +37,7 @@ async function bootstrap() {
   if (env === 'DEVELOPMENT') {
     app.useGlobalInterceptors(new LoggingInterceptor());
   }
+  app.useGlobalInterceptors(new TransformInterceptor());
   SwaggerModule.setup('docs', app, document);
   await app.listen(process.env.PORT ?? 8081);
   console.log(`Server running on http://localhost:${port || 8081}/docs`);
