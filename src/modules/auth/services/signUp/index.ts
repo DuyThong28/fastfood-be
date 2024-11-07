@@ -7,7 +7,6 @@ import { createUserWithEmail } from './create-user';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { SignUpByEmailDto } from '../../dto/signup-dto';
 import { EmailService } from 'src/modules/email/email.service';
-
 @Injectable()
 class SignUpService {
   constructor(

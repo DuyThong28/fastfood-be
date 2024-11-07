@@ -14,24 +14,22 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
-import {
-  DOCUMENTATION,
-  END_POINTS,
-  FILE_TYPES_REGEX,
-} from 'src/utils/constants';
 import { CreateBookDto } from './dto/create-book.dto';
 import { BooksService } from './books.service';
 import { StandardResponse } from 'src/utils/response.dto';
 import { Books } from '@prisma/client';
-import HttpStatusCode from 'src/utils/HttpStatusCode';
-import { PageResponseDto } from 'src/utils/page-response.dto';
-import { PageResponseMetaDto } from 'src/utils/page-response-meta.dto';
-import { PageOptionsDto } from 'src/utils/page-options-dto';
 import { BookQuery } from './query/book.query';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { PriceFilterDto } from './dto/filter-by-price.dto';
 import { RatingFilterDto } from './dto/filter-by-rating.dto';
+import { DOCUMENTATION } from 'src/constants/documentation';
+import { END_POINTS } from 'src/constants/end_points';
+import { FILE_TYPES_REGEX } from 'src/constants/constraints';
+import HttpStatusCode from 'src/constants/http_status_code';
+import { PageResponseDto } from 'src/utils/page_response.dto';
+import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
+import { PageOptionsDto } from 'src/utils/page_option.dto';
 
 const {
   BOOKS: {

@@ -9,22 +9,24 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SignInService, VerificationEmailService } from './services';
 import { Response } from 'express';
-import SignUpService from './services/signUp';
-import SignOutService from './services/signout';
-import ForgotPwdService from './services/forgotPwd';
 import { RefreshTokenGuard } from 'src/common/guards/refreshtoken.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 import { DOCUMENTATION } from 'src/constants/documentation';
 import { END_POINTS } from 'src/constants/end_points';
 import { SignInByEmailDto, SignInByPhoneDto } from './dto/signin-dto';
 import { VerificationEmailDto } from './dto/verify_account.dto';
-import RefreshTokenService from './services/refreshToken';
 import SendCodeDto from './dto/reset_password.dto';
 import ResetPasswordDto from './dto/confirm_reset_password.dto';
 import { SignUpByEmailDto } from './dto/signup-dto';
-
+import {
+  ForgotPwdService,
+  RefreshTokenService,
+  SignInService,
+  SignOutService,
+  SignUpService,
+  VerificationEmailService,
+} from './services';
 const {
   AUTH: {
     BASE,

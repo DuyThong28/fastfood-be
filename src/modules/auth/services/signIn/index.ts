@@ -2,10 +2,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { SignInByEmailDto, SignInByPhoneDto } from '../../dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { SignInByEmailDto, SignInByPhoneDto } from '../../dto/signin-dto';
 
 @Injectable()
 class SignInService {
