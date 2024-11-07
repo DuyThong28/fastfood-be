@@ -1,6 +1,6 @@
 export enum ORDER {
-  ASC = 'ASC',
-  DESC = 'DESC',
+  ASC = 'asc',
+  DESC = 'desc',
 }
 export enum ROLE {
   ADMIN = 'ADMIN',

@@ -8,6 +8,6 @@ const adminConfig: ServiceAccount = {
 export default () => {
   firebaseAdmin.initializeApp({
     credential: firebaseAdmin.credential.cert(adminConfig),
-    storageBucket: `${process.env.FIREBASE_PROJECT_ID}.appspot.com`,
+    storageBucket: `${process.env.FIREBASE_PROJECT_ID}.firebasestorage.app`,
   });
 };
