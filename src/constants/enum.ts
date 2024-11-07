@@ -31,3 +31,8 @@ export enum GENDER {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
 }
+
+export enum ReviewState {
+  UNANSWERED = 'UNANSWERED',
+  ANSWERED = 'ANSWERED',
+}
