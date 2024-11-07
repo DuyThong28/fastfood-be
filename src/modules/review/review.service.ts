@@ -15,6 +15,11 @@ export class ReviewsService {
         ...(dto.date && { created_at: { equals: new Date(dto.date) } }),
         ...(dto.state && { state: dto.state }),
       },
+      include: {
+        book: true,
+        user: true,
+        order: true,
+      },
       skip: dto.skip,
       take: dto.take,
     });

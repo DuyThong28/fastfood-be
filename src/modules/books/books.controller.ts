@@ -123,7 +123,6 @@ export class BooksController {
     )
     images?: Array<Express.Multer.File>,
   ): Promise<StandardResponse<Books>> {
-    console.log(images);
     const newBook: Books = await this.bookService.createBook(body, images);
     const message = 'Create book successfully';
     return new StandardResponse(newBook, message, HttpStatusCode.CREATED);

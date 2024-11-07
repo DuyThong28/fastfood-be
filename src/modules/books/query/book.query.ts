@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { BOOKSTATUS } from 'src/constants/enum';
 import { PageOptionsDto } from 'src/utils/page_option.dto';
 
@@ -26,7 +26,7 @@ export class BookQuery extends PageOptionsDto {
   })
   @IsOptional()
   @IsString()
-  category?: string;
+  categoryId?: string;
 
   @ApiProperty({
     description: 'Book status',
@@ -36,6 +36,26 @@ export class BookQuery extends PageOptionsDto {
   @IsOptional()
   @IsEnum(BOOKSTATUS)
   status?: BOOKSTATUS;
+
+  @IsOptional()
+  @IsNumber()
+  min_star?: number;
+
+  @IsOptional()
+  @IsNumber()
+  max_star?: number;
+
+  @IsOptional()
+  @IsNumber()
+  min_price?: number;
+
+  @IsOptional()
+  @IsNumber()
+  max_price?: number;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 
   constructor(bookQuery: Partial<BookQuery> = {}) {
     super();
