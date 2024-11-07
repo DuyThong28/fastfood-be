@@ -3,7 +3,7 @@ import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { VerificationEmailDto } from '../../dto/verify_account.dto';
 
 @Injectable()
-class VerificationEmailService {
+export class VerificationEmailService {
   constructor(private prisma: PrismaService) {}
   async verificationEmail(body: VerificationEmailDto) {
     const { token } = body;

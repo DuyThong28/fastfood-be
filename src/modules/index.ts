@@ -1,14 +1,22 @@
 import { AuthModule } from './auth/auth.module';
-import { FoodModule } from './food/food.module';
-import { HealthModule } from './health_checks/health_check.module';
-import { ReviewModule } from './review/review.module';
-import { UserModule } from './user/user.module';
-
+import { BooksModule } from './books/books.module';
+import { CartsModule } from './cart/cart.module';
+import { CategoriesModule } from './category/category.module';
+import { EmailModule } from './email/email.module';
+import { GoogleOauthModule } from './google_oauth/google_oauth.module';
+import { OrdersModule } from './order/order.module';
+import { ReviewsModule } from './review/review.module';
+import { UsersModule } from './user/user.module';
 const Modules = [
-  HealthModule,
+  EmailModule,
+  UsersModule,
+  BooksModule,
   AuthModule,
-  FoodModule,
-  ReviewModule,
-  UserModule,
+  CategoriesModule,
+  CartsModule,
+  OrdersModule,
+  GoogleOauthModule,
+  ReviewsModule,
 ];
+
 export default Modules;

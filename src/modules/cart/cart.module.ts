@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CartController } from './cart.controller';
 import { PrismaModule } from '../prisma/prisma.module';
-import { OrdersModule } from '../orders/orders.module';
-import { OrderService } from '../orders/orders.service';
 import { CartsService } from './cart.service';
+import { OrdersModule } from '../order/order.module';
+import { OrderService } from '../order/order.service';
 
 @Module({
   providers: [CartsService, OrderService],

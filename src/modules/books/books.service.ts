@@ -18,13 +18,19 @@ export class BooksService {
       where: {
         title: {
           contains: bookQuery.title,
+          mode: 'insensitive',
         },
         Category: {
           name: {
-            contains: bookQuery.category,
+            contains: bookQuery.search ? bookQuery.search : undefined,
+            mode: 'insensitive',
           },
         },
         ...(bookQuery.status ? { status: bookQuery.status } : {}),
+        ...(bookQuery.min_price && { price: { gte: bookQuery.min_price } }),
+        ...(bookQuery.max_price && { price: { lte: bookQuery.max_price } }),
+        ...(bookQuery.min_star && { avg_stars: { gte: bookQuery.min_star } }),
+        ...(bookQuery.max_star && { avg_stars: { lte: bookQuery.max_star } }),
       },
       include: {
         Category: true,
@@ -35,7 +41,25 @@ export class BooksService {
       skip: bookQuery.skip,
       take: bookQuery.take,
     });
-    const itemCount = await this.prismaService.books.count();
+    const itemCount = await this.prismaService.books.count({
+      where: {
+        title: {
+          contains: bookQuery.title,
+          mode: 'insensitive',
+        },
+        Category: {
+          name: {
+            contains: bookQuery.search ? bookQuery.search : undefined,
+            mode: 'insensitive',
+          },
+        },
+        ...(bookQuery.status ? { status: bookQuery.status } : {}),
+        ...(bookQuery.min_price && { price: { gte: bookQuery.min_price } }),
+        ...(bookQuery.max_price && { price: { lte: bookQuery.max_price } }),
+        ...(bookQuery.min_star && { avg_stars: { gte: bookQuery.min_star } }),
+        ...(bookQuery.max_star && { avg_stars: { lte: bookQuery.max_star } }),
+      },
+    });
     return { books, itemCount };
   }
   async createBook(body: CreateBookDto, images?: Array<Express.Multer.File>) {

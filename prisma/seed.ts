@@ -8,7 +8,7 @@ export const hashPassword = async (password: string) => {
 };
 import { faker } from '@faker-js/faker';
 import category_data from './seeds/categories';
-import { USER_IMAGE_URL } from 'src/utils/constants';
+import { USER_IMAGE_URL } from 'src/constants/constant';
 async function main() {
   /**
    * Neccessary to hash the password before seeding
