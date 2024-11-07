@@ -1,34 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ReviewService } from './review.service';
-import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ReplyReviews, Reviews } from '@prisma/client';
+import { StandardResponse } from 'src/utils/response.dto';
+import { DOCUMENTATION } from 'src/constants/documentation';
+import { END_POINTS } from 'src/constants/end_points';
+import { ReviewsService } from './review.service';
+import { PageResponseDto } from 'src/utils/page_response.dto';
+import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
+import { GetReviewsDto } from './dto/find_all_review.dto';
+import { AdminReplyReviewDto } from './dto/reply_review.dto';
+import HttpStatusCode from 'src/constants/http_status_code';
 
-@Controller('review')
-export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+const {
+  REVIEW: { BASE, GET_ALL, GET_ONE, REPLY },
+} = END_POINTS;
 
-  @Post()
-  create(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewService.create(createReviewDto);
+@Controller(BASE)
+@ApiTags(DOCUMENTATION.TAGS.COMMENT)
+export class ReviewsController {
+  constructor(private readonly reviewService: ReviewsService) {}
+  @Get(GET_ALL)
+  async getAll(
+    @Query() query: GetReviewsDto,
+  ): Promise<PageResponseDto<Reviews>> {
+    const { reviews, itemCount } =
+      await this.reviewService.getAllReviews(query);
+    const pageResponseMetaDto = new PageResponseMetaDto({
+      pageOptionsDto: query,
+      itemCount: itemCount,
+    });
+    return new PageResponseDto<Reviews>(reviews, pageResponseMetaDto);
   }
-
-  @Get()
-  findAll() {
-    return this.reviewService.findAll();
+  @Get(GET_ONE)
+  async getOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.reviewService.getReviewDetails(id);
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reviewService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewService.update(+id, updateReviewDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reviewService.remove(+id);
+  @Post(REPLY)
+  async replyReview(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AdminReplyReviewDto,
+  ) {
+    const reply = await this.reviewService.createAdminReply(id, dto);
+    return new StandardResponse<ReplyReviews>(
+      reply,
+      'Create reply successfully',
+      HttpStatusCode.CREATED,
+    );
   }
 }

@@ -162,6 +162,8 @@ model Address {
 enum Role {
   CUSTOMER
   ADMIN
+  MANAGER
+  STAFF
 }
 
 enum Gender {
