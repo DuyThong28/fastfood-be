@@ -257,6 +257,7 @@ export class OrderService {
             rating: dto.star,
             description: dto.description,
             title: dto.title,
+            order_id: id,
           },
           include: {
             book: true,
