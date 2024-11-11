@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { hashedPassword } from '../auth/services/signup/hash-password';
 import { TUserSession } from 'src/common/decorators/user-session.decorator';
 import { CreateUserDto } from './dto/create_user.dto';
 import { isEmailExist } from './helper';
@@ -8,6 +7,7 @@ import { UpdateUserProfileDto } from './dto/update_user_profile.dto';
 import { GetAllUserDto } from './dto/get_all_user.dto';
 import { EUploadFolder, USER_IMAGE_URL } from 'src/constants/constant';
 import { uploadFilesFromFirebase } from 'src/libs/firebase/upload';
+import { hashedPassword } from '../auth/services/signup/hash-password';
 
 @Injectable()
 export class UsersService {

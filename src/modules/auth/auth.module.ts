@@ -2,14 +2,17 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from '../prisma/prisma.module';
-import SignUpService from './services/signup';
-import SignOutService from './services/signout';
-import RefreshTokenService from './services/refreshToken';
-import ForgotPwdService from './services/forgotPwd';
 import { AtStrategyProvider } from 'src/common/providers/authenticate.provider';
 import { RefreshTokenStrategyProvider } from 'src/common/providers/refreshtoken.provider';
 import { NodemailerProvider } from 'src/common/providers/nodemailer.provider';
-import { SignInService, VerificationEmailService } from './services';
+import {
+  ForgotPwdService,
+  RefreshTokenService,
+  SignInService,
+  SignOutService,
+  SignUpService,
+  VerificationEmailService,
+} from './services';
 import { EmailService } from '../email/email.service';
 
 @Module({
