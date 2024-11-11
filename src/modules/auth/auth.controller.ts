@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { RefreshTokenGuard } from 'src/common/guards/refreshtoken.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 import { DOCUMENTATION } from 'src/constants/documentation';
