@@ -27,6 +27,7 @@ export const END_POINTS = {
     DISABLE: '/:id/disable',
     ENABLE: '/:id/enable',
     GET_ONE: '/get-one/:id',
+    UPDATE_BY_ADMIN: '/update-by-admin',
     SEARCH: '/search',
   },
   BOOKS: {
