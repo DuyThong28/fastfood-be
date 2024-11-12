@@ -8,6 +8,7 @@ import { GetAllUserDto } from './dto/get_all_user.dto';
 import { EUploadFolder, USER_IMAGE_URL } from 'src/constants/constant';
 import { uploadFilesFromFirebase } from 'src/libs/firebase/upload';
 import { hashedPassword } from '../auth/services/signup/hash-password';
+import { UpdateUserProfileByAdmin } from './dto/update_user_profile_by_admin.dto';
 
 @Injectable()
 export class UsersService {
@@ -168,5 +169,23 @@ export class UsersService {
       },
     });
     return { users, itemCount };
+  }
+  async updateUserByAdmin(body: UpdateUserProfileByAdmin) {
+    const user = await this.prisma.users.findUnique({ where: { id: body.id } });
+    if (!user) {
+      throw new BadRequestException('User not found', {
+        cause: new Error('User not found'),
+      });
+    }
+    const { birthday, fullName, ...data } = body;
+    const updatedUser = await this.prisma.users.update({
+      where: { id: body.id },
+      data: {
+        full_name: fullName ?? user.full_name,
+        birthday: birthday ? new Date(birthday) : user.birthday,
+        ...data,
+      },
+    });
+    return updatedUser;
   }
 }

@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
@@ -29,9 +30,20 @@ import { FILE_TYPES_REGEX } from 'src/constants/constraints';
 import { GetAllUserDto } from './dto/get_all_user.dto';
 import { PageResponseDto } from 'src/utils/page_response.dto';
 import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
+import { UpdateUserProfileByAdmin } from './dto/update_user_profile_by_admin.dto';
 
 const {
-  USERS: { BASE, GET_ALL, CREATE, GET_ONE, UPDATE, ENABLE, DISABLE, SEARCH },
+  USERS: {
+    BASE,
+    GET_ALL,
+    CREATE,
+    GET_ONE,
+    UPDATE,
+    ENABLE,
+    DISABLE,
+    SEARCH,
+    UPDATE_BY_ADMIN,
+  },
 } = END_POINTS;
 
 @ApiTags(DOCUMENTATION.TAGS.USERS)
@@ -136,5 +148,14 @@ export class UsersController {
       itemCount: itemCount,
     });
     return new PageResponseDto(users, meta);
+  }
+  @Put(UPDATE_BY_ADMIN)
+  async updateUserByAdmin(@Body() dto: UpdateUserProfileByAdmin) {
+    const user = await this.userService.updateUserByAdmin(dto);
+    return new StandardResponse(
+      user,
+      'Update user by admin successfully',
+      HttpStatus.CREATED,
+    );
   }
 }
