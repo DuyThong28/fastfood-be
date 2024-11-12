@@ -107,6 +107,7 @@ export class UsersController {
     )
     image?: Express.Multer.File,
   ) {
+    console.log(session);
     const user = await this.userService.updateUserProfile(session, dto, image);
     return new StandardResponse(
       user,
