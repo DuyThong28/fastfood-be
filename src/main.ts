@@ -9,9 +9,11 @@ import { END_POINTS } from './constants/end_points';
 import { ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import InitFirebase from './libs/firebase';
+import { AuthenticationGuard } from './common/guards/authentication.guard';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  const reflector = app.get('Reflector');
   const port = configService.get<number>('port');
   const env = configService.get<string>('env');
   const document = SwaggerModule.createDocument(app, documentation, {
@@ -23,6 +25,7 @@ async function bootstrap() {
   });
   app.use(helmet());
   app.use(cookieParser());
+  app.useGlobalGuards(new AuthenticationGuard(reflector));
   app.setGlobalPrefix(END_POINTS.BASE);
   app.useGlobalPipes(
     new ValidationPipe({
