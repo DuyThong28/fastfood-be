@@ -6,7 +6,7 @@ export const DOCUMENTATION = {
   TAGS: {
     AUTH: 'AUTH',
     USERS: 'USERS',
-    BOOKS: 'BOOKS',
+    PRODUCT: 'PRODUCTS',
     AUTHORS: 'AUTHORS',
     CATEGORIES: 'CATEGORIES',
     CARTS: 'CART',

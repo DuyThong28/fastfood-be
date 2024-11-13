@@ -16,24 +16,27 @@ import { UpdateOrderStatusDto } from './dto/update_order_status.dto';
 export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
   async createOrder(session: TUserSession, dto: CreateOrderDto) {
-    const bookIds = dto.items.map((item) => item.bookId);
-    const books = await this.prisma.books.findMany({
-      where: { id: { in: bookIds } },
+    const productIds = dto.items.map((item) => item.productId);
+    const products = await this.prisma.products.findMany({
+      where: { id: { in: productIds } },
     });
     const cart = await this.prisma.carts.findFirstOrThrow({
       where: { user_id: session.id },
     });
     const cartItems = await this.prisma.cartItems.findMany({
-      where: { cart_id: cart.id, book_id: { in: bookIds } },
+      where: { cart_id: cart.id, product_id: { in: productIds } },
     });
     const cartItemIds = cartItems.map((item) => item.id);
-    if (books.length !== bookIds.length) {
-      throw new NotFoundException('Some books are not found');
+    if (products.length !== productIds.length) {
+      throw new NotFoundException('Some products are not found');
     }
-    const bookPriceMap = new Map(
-      books.map((book) => [
-        book.id,
-        { price: book.price, finalPrice: book.final_price ?? book.price },
+    const productPriceMap = new Map(
+      products.map((product) => [
+        product.id,
+        {
+          price: product.price,
+          finalPrice: product.final_price ?? product.price,
+        },
       ]),
     );
     try {
@@ -52,11 +55,11 @@ export class OrderService {
           },
         });
         const orderItems = dto.items.map((item) => {
-          const { price, finalPrice } = bookPriceMap.get(item.bookId);
+          const { price, finalPrice } = productPriceMap.get(item.productId);
           const totalPrice = Number(finalPrice) * item.quantity;
           return {
             order_id: order.id,
-            book_id: item.bookId,
+            product_id: item.productId,
             quantity: item.quantity,
             price,
             total_price: totalPrice,
@@ -65,8 +68,8 @@ export class OrderService {
         await tx.orderItems.createMany({ data: orderItems });
         await Promise.all(
           orderItems.map((item) =>
-            tx.books.update({
-              where: { id: item.book_id },
+            tx.products.update({
+              where: { id: item.product_id },
               data: {
                 stock_quantity: { decrement: item.quantity },
                 sold_quantity: { increment: item.quantity },
@@ -86,7 +89,7 @@ export class OrderService {
           include: {
             OrderItems: {
               include: {
-                book: true,
+                product: true,
               },
             },
           },
@@ -113,7 +116,7 @@ export class OrderService {
       include: {
         OrderItems: {
           include: {
-            book: true,
+            product: true,
           },
         },
         user: {
@@ -141,7 +144,7 @@ export class OrderService {
       include: {
         OrderItems: {
           include: {
-            book: true,
+            product: true,
           },
         },
       },
@@ -164,7 +167,7 @@ export class OrderService {
       include: {
         OrderItems: {
           include: {
-            book: true,
+            product: true,
           },
         },
       },
@@ -217,7 +220,7 @@ export class OrderService {
     dto: CreateReviewDto,
     id: string,
     orderDetailId: string,
-    bookId: string,
+    productId: string,
   ) {
     const order = await this.prisma.orders.findUnique({
       where: { user_id: session.id, id },
@@ -231,20 +234,20 @@ export class OrderService {
     if (!orderDetail) {
       throw new NotFoundException('Order detail not found');
     }
-    const book = await this.prisma.books.findUnique({
-      where: { id: bookId },
+    const product = await this.prisma.products.findUnique({
+      where: { id: productId },
     });
-    if (!book) {
+    if (!product) {
       throw new NotFoundException('Book not found');
     }
     try {
       return await this.prisma.$transaction(async (tx) => {
-        const newTotalReviews = book.total_reviews + 1;
+        const newTotalReviews = product.total_reviews + 1;
         const newAvgStars =
-          (Number(book.avg_stars) * book.total_reviews + dto.star) /
+          (Number(product.avg_stars) * product.total_reviews + dto.star) /
           newTotalReviews;
-        await tx.books.update({
-          where: { id: book.id },
+        await tx.products.update({
+          where: { id: product.id },
           data: {
             total_reviews: newTotalReviews,
             avg_stars: newAvgStars,
@@ -253,14 +256,14 @@ export class OrderService {
         const review = await tx.reviews.create({
           data: {
             user_id: session.id,
-            book_id: book.id,
+            product_id: product.id,
             rating: dto.star,
             description: dto.description,
             title: dto.title,
             order_id: id,
           },
           include: {
-            book: true,
+            product: true,
           },
         });
         return review;
@@ -286,7 +289,7 @@ export class OrderService {
       where: { order_id: id },
     });
     const bookIds = orderDetails.map((item) => {
-      return { id: item.book_id, quantity: item.quantity };
+      return { id: item.product_id, quantity: item.quantity };
     });
     try {
       return await this.prisma.$transaction(async (tx) => {
@@ -295,7 +298,7 @@ export class OrderService {
           data: { status: ORDER_STATUS.CANCELLED as OrderStatus },
         });
         bookIds.forEach(async (item) => {
-          await tx.books.update({
+          await tx.products.update({
             where: { id: item.id },
             data: {
               stock_quantity: { increment: item.quantity },
@@ -319,7 +322,7 @@ export class OrderService {
       include: {
         OrderItems: {
           include: {
-            book: true,
+            product: true,
           },
         },
         user: true,
@@ -336,7 +339,7 @@ export class OrderService {
       include: {
         OrderItems: {
           include: {
-            book: true,
+            product: true,
           },
         },
       },

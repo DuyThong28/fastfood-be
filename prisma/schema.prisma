@@ -44,36 +44,36 @@ model Vertifications {
   is_active     Boolean @default(false)
 }
 
-model Books {
-  id                 String       @id @default(uuid())
-  title              String       @db.VarChar(255)
+model Products {
+  id                 String        @id @default(uuid())
+  title              String        @db.VarChar(255)
   author             String
   category_id        String
   price              Decimal
   stock_quantity     Int
-  description        String       @db.Text
+  description        String        @db.Text
   entry_price        Decimal
   final_price        Decimal?
   discountPercentage Int?
   discountDate       DateTime?
-  avg_stars          Decimal      @default(0)
-  total_reviews      Int          @default(0)
-  sold_quantity      Int          @default(0)
-  image_url          String[]     @default([])
-  status             BookStatus   @default(ACTIVE)
-  created_at         DateTime     @default(now())
-  updated_at         DateTime     @updatedAt
-  Category           Category     @relation(fields: [category_id], references: [id])
+  avg_stars          Decimal       @default(0)
+  total_reviews      Int           @default(0)
+  sold_quantity      Int           @default(0)
+  image_url          String[]      @default([])
+  status             ProductStatus @default(ACTIVE)
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
+  Category           Category      @relation(fields: [category_id], references: [id])
   OrderItems         OrderItems[]
   CartItems          CartItems[]
   Reviews            Reviews[]
 }
 
 model Category {
-  id         String  @id @default(uuid())
-  name       String  @unique
-  is_disable Boolean @default(false)
-  books      Books[]
+  id         String     @id @default(uuid())
+  name       String     @unique
+  is_disable Boolean    @default(false)
+  Products   Products[]
 }
 
 model Authors {
@@ -101,11 +101,11 @@ model Orders {
 }
 
 model OrderItems {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   order_id    String
-  order       Orders  @relation(fields: [order_id], references: [id])
-  book_id     String
-  book        Books   @relation(fields: [book_id], references: [id])
+  order       Orders   @relation(fields: [order_id], references: [id])
+  product_id  String
+  product     Products @relation(fields: [product_id], references: [id])
   quantity    Int
   price       Decimal
   total_price Decimal
@@ -123,8 +123,8 @@ model CartItems {
   id         Int      @id @default(autoincrement())
   cart_id    Int
   cart       Carts    @relation(fields: [cart_id], references: [id])
-  book_id    String
-  book       Books    @relation(fields: [book_id], references: [id])
+  product_id String
+  product    Products @relation(fields: [product_id], references: [id])
   quantity   Int
   created_at DateTime @default(now())
 }
@@ -133,8 +133,8 @@ model Reviews {
   id              Int           @id @default(autoincrement())
   user_id         String
   user            Users         @relation(fields: [user_id], references: [id])
-  book_id         String
-  book            Books         @relation(fields: [book_id], references: [id])
+  product_id      String
+  product         Products      @relation(fields: [product_id], references: [id])
   order_id        String
   order           Orders        @relation(fields: [order_id], references: [id])
   title           String
@@ -183,7 +183,7 @@ enum OrderStatus {
   REJECT
 }
 
-enum BookStatus {
+enum ProductStatus {
   INACTIVE
   ACTIVE
 }

@@ -30,8 +30,8 @@ export const END_POINTS = {
     UPDATE_BY_ADMIN: '/update-by-admin',
     SEARCH: '/search',
   },
-  BOOKS: {
-    BASE: '/books',
+  PRODUCTS: {
+    BASE: '/products',
     GET_ALL: '/get-all',
     CREATE: '/create',
     UPDATE: '/update/:id',

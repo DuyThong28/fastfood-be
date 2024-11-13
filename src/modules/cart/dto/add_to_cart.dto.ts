@@ -10,7 +10,7 @@ import {
 export class AddToCartDto {
   @IsString()
   @IsNotEmpty()
-  bookId: string;
+  productId: string;
   @IsNumber()
   @IsNotEmpty()
   @IsInt()

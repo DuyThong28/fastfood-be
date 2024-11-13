@@ -14,12 +14,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
-import { CreateBookDto } from './dto/create-book.dto';
-import { BooksService } from './books.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { ProductsService } from './product.service';
 import { StandardResponse } from 'src/utils/response.dto';
-import { Books } from '@prisma/client';
-import { BookQuery } from './query/book.query';
-import { UpdateBookDto } from './dto/update-book.dto';
+import { Products } from '@prisma/client';
+import { ProductQuery } from './query/product.query';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { PriceFilterDto } from './dto/filter-by-price.dto';
 import { RatingFilterDto } from './dto/filter-by-rating.dto';
@@ -30,9 +30,10 @@ import HttpStatusCode from 'src/constants/http_status_code';
 import { PageResponseDto } from 'src/utils/page_response.dto';
 import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
 import { PageOptionsDto } from 'src/utils/page_option.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 const {
-  BOOKS: {
+  PRODUCTS: {
     BASE,
     GET_ALL,
     CREATE,
@@ -47,12 +48,12 @@ const {
   },
 } = END_POINTS;
 
-@ApiTags(DOCUMENTATION.TAGS.BOOKS)
+@ApiTags(DOCUMENTATION.TAGS.PRODUCT)
 @Controller(BASE)
-export class BooksController {
-  constructor(private readonly bookService: BooksService) {}
+export class ProductsController {
+  constructor(private readonly productService: ProductsService) {}
   @ApiOperation({
-    summary: 'Get all books',
+    summary: 'Get all products',
     description: 'Allow admin/ customer',
   })
   @ApiQuery({
@@ -71,47 +72,49 @@ export class BooksController {
     name: 'title',
     required: false,
     type: String,
-    description: 'Book title',
+    description: 'Product title',
   })
   @ApiQuery({
     name: 'author',
     required: false,
     type: String,
-    description: 'Book author',
+    description: 'Product author',
   })
   @ApiQuery({
     name: 'category',
     required: false,
     type: String,
-    description: 'Book category',
+    description: 'Product category',
   })
   @ApiQuery({
     name: 'status',
     required: false,
     enum: ['INSTOCK', 'OUTOFSTOCK'],
-    description: 'Book status',
+    description: 'Product status',
   })
+  @Public()
   @Get(GET_ALL)
   @UsePipes(new ValidationPipe({ transform: true }))
-  async getAllBooks(
-    @Query() bookQuery: BookQuery,
-  ): Promise<PageResponseDto<Books>> {
-    const { books, itemCount } = await this.bookService.getAllBooks(bookQuery);
-    const pageOptionsDto = new PageOptionsDto(bookQuery);
+  async getAllProducts(
+    @Query() productQuery: ProductQuery,
+  ): Promise<PageResponseDto<Products>> {
+    const { products, itemCount } =
+      await this.productService.getAllProducts(productQuery);
+    const pageOptionsDto = new PageOptionsDto(productQuery);
     const meta = new PageResponseMetaDto({
       pageOptionsDto,
       itemCount: itemCount,
     });
-    return new PageResponseDto(books, meta);
+    return new PageResponseDto(products, meta);
   }
   @ApiOperation({
-    summary: 'Create a new book',
+    summary: 'Create a new product',
     description: 'Allow admin',
   })
   @Post(CREATE)
   @UseInterceptors(FilesInterceptor('images'))
-  async createBook(
-    @Body() body: CreateBookDto,
+  async createProduct(
+    @Body() body: CreateProductDto,
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -122,20 +125,23 @@ export class BooksController {
         }),
     )
     images?: Array<Express.Multer.File>,
-  ): Promise<StandardResponse<Books>> {
-    const newBook: Books = await this.bookService.createBook(body, images);
-    const message = 'Create book successfully';
-    return new StandardResponse(newBook, message, HttpStatusCode.CREATED);
+  ): Promise<StandardResponse<Products>> {
+    const newProduct: Products = await this.productService.createProduct(
+      body,
+      images,
+    );
+    const message = 'Create product successfully';
+    return new StandardResponse(newProduct, message, HttpStatusCode.CREATED);
   }
   @ApiOperation({
-    summary: 'Update a book',
+    summary: 'Update a product',
     description: 'Allow admin',
   })
   @Patch(UPDATE)
   @UseInterceptors(FilesInterceptor('images_update'))
-  async updateBook(
+  async updateProduct(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateBookDto,
+    @Body() dto: UpdateProductDto,
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -146,30 +152,34 @@ export class BooksController {
         }),
     )
     images?: Array<Express.Multer.File>,
-  ): Promise<StandardResponse<Books>> {
-    const updatedBook: Books = await this.bookService.updateBook(
+  ): Promise<StandardResponse<Products>> {
+    const updatedProduct: Products = await this.productService.updateProduct(
       id,
       dto,
       images,
     );
-    const message = 'Update book successfully';
-    return new StandardResponse(updatedBook, message, HttpStatusCode.OK);
+    const message = 'Update product successfully';
+    return new StandardResponse(updatedProduct, message, HttpStatusCode.OK);
   }
   @ApiOperation({
-    summary: 'Get a book by id',
+    summary: 'Get a Product by id',
     description: 'Allow admin/ customer',
   })
   @Get(GET_ONE)
-  async getBookDetailsById(
+  async getProductDetailsById(
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<StandardResponse<Books>> {
-    const book: Books = await this.bookService.getBookDetailsById(id);
-    const message = 'Get book successfully';
-    return new StandardResponse(book, message, HttpStatusCode.OK);
+  ): Promise<StandardResponse<Products>> {
+    const product: Products =
+      await this.productService.getProductDetailsById(id);
+    const message = 'Get product successfully';
+    return new StandardResponse(product, message, HttpStatusCode.OK);
   }
   @Get(SEARCH_BY_PRICE)
-  async searchByPrice(@Body() dto: PriceFilterDto, @Query() query: BookQuery) {
-    const { books, itemCount } = await this.bookService.searchByPrice(
+  async searchByPrice(
+    @Body() dto: PriceFilterDto,
+    @Query() query: ProductQuery,
+  ) {
+    const { products, itemCount } = await this.productService.searchByPrice(
       dto,
       query,
     );
@@ -177,14 +187,14 @@ export class BooksController {
       pageOptionsDto: query,
       itemCount: itemCount,
     });
-    return new PageResponseDto(books, meta);
+    return new PageResponseDto(products, meta);
   }
   @Get(SEARCH_BY_RATING)
   async searchByRating(
     @Body() dto: RatingFilterDto,
-    @Query() query: BookQuery,
+    @Query() query: ProductQuery,
   ) {
-    const { books, itemCount } = await this.bookService.searchByRating(
+    const { products, itemCount } = await this.productService.searchByRating(
       dto,
       query,
     );
@@ -192,53 +202,53 @@ export class BooksController {
       pageOptionsDto: query,
       itemCount: itemCount,
     });
-    return new PageResponseDto(books, meta);
+    return new PageResponseDto(products, meta);
   }
   @Get(SEARCH)
-  async searchBook(
-    @Query() bookQuery: BookQuery,
+  async searchProduct(
+    @Query() productQuery: ProductQuery,
     @Query('query') query?: string,
   ) {
-    const { books, itemCount } = await this.bookService.searchBook(
+    const { products, itemCount } = await this.productService.searchProduct(
       query,
-      bookQuery,
+      productQuery,
     );
     const meta = new PageResponseMetaDto({
-      pageOptionsDto: bookQuery,
+      pageOptionsDto: productQuery,
       itemCount: itemCount,
     });
-    return new PageResponseDto(books, meta);
+    return new PageResponseDto(products, meta);
   }
   @Get(SEARCH_BY_CATEGORY)
   async searchByCategory(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
-    @Query() BookQuery: BookQuery,
+    @Query() productQuery: ProductQuery,
   ) {
-    const { books, itemCount } = await this.bookService.searchByCategory(
+    const { products, itemCount } = await this.productService.searchByCategory(
       categoryId,
-      BookQuery,
+      productQuery,
     );
     const meta = new PageResponseMetaDto({
-      pageOptionsDto: BookQuery,
+      pageOptionsDto: productQuery,
       itemCount: itemCount,
     });
-    return new PageResponseDto(books, meta);
+    return new PageResponseDto(products, meta);
   }
   @Post(ACTIVE)
-  async enableBook(@Param('id', ParseUUIDPipe) id: string) {
-    const book = await this.bookService.activeBook(id);
+  async enableProduct(@Param('id', ParseUUIDPipe) id: string) {
+    const product = await this.productService.activeProduct(id);
     return new StandardResponse(
-      book,
-      'Enable book successfully',
+      product,
+      'Enable product successfully',
       HttpStatusCode.OK,
     );
   }
   @Post(INACTIVE)
-  async disableBook(@Param('id', ParseUUIDPipe) id: string) {
-    const book = await this.bookService.inactiveBook(id);
+  async disableProduct(@Param('id', ParseUUIDPipe) id: string) {
+    const product = await this.productService.inactiveProduct(id);
     return new StandardResponse(
-      book,
-      'Disable book successfully',
+      product,
+      'Disable product successfully',
       HttpStatusCode.OK,
     );
   }

@@ -37,7 +37,7 @@ export class CartsService {
     }
     const cartItems = await this.prisma.cartItems.findMany({
       where: { cart_id: cart.id },
-      include: { book: true },
+      include: { product: true },
       skip: getCartDto.skip,
       take: getCartDto.take,
       orderBy: { [getCartDto.sortBy]: getCartDto.order },
@@ -48,22 +48,22 @@ export class CartsService {
     return { cartItems, itemCount };
   }
   async addToCart(session: TUserSession, addToCartDto: AddToCartDto) {
-    const { bookId, quantity } = addToCartDto;
+    const { productId, quantity } = addToCartDto;
     const cart = await this.prisma.carts.findFirst({
       where: { user_id: session.id },
     });
     if (!cart) {
       throw new BadRequestException('Cart not found');
     }
-    const book = await this.prisma.books.findUnique({
-      where: { id: bookId },
+    const product = await this.prisma.products.findUnique({
+      where: { id: productId },
     });
-    if (!book) {
-      throw new BadRequestException('Book not found');
+    if (!product) {
+      throw new BadRequestException('Product not found');
     }
     const existingCartItem = await this.prisma.cartItems.findFirst({
       where: {
-        book_id: bookId,
+        product_id: productId,
         cart_id: cart.id,
       },
     });
@@ -72,39 +72,41 @@ export class CartsService {
         where: { id: existingCartItem.id },
         data: {
           quantity:
-            existingCartItem.quantity + quantity < book.stock_quantity
+            existingCartItem.quantity + quantity < product.stock_quantity
               ? existingCartItem.quantity + quantity
-              : book.stock_quantity,
+              : product.stock_quantity,
         },
       });
     } else {
       await this.prisma.cartItems.create({
         data: {
-          book_id: bookId,
+          product_id: productId,
           cart_id: cart.id,
           quantity:
-            quantity < book.stock_quantity ? quantity : book.stock_quantity,
+            quantity < product.stock_quantity
+              ? quantity
+              : product.stock_quantity,
         },
       });
     }
     return this.prisma.carts.findFirst({
       where: { user_id: session.id },
-      include: { CartItems: { include: { book: true } } },
+      include: { CartItems: { include: { product: true } } },
     });
   }
-  async deleteCartItem(session: TUserSession, bookId: string) {
-    const book = await this.prisma.books.findUnique({
-      where: { id: bookId },
+  async deleteCartItem(session: TUserSession, productId: string) {
+    const product = await this.prisma.products.findUnique({
+      where: { id: productId },
     });
-    if (!book) {
-      throw new BadRequestException('Book not found');
+    if (!product) {
+      throw new BadRequestException('Product not found');
     }
     const cart = await this.prisma.carts.findFirst({
       where: { user_id: session.id },
     });
     const cartItem = await this.prisma.cartItems.findFirst({
       where: {
-        book_id: bookId,
+        product_id: productId,
         cart_id: cart.id,
       },
     });
@@ -119,7 +121,7 @@ export class CartsService {
       });
       return this.prisma.carts.findFirst({
         where: { user_id: session.id },
-        include: { CartItems: { include: { book: true } } },
+        include: { CartItems: { include: { product: true } } },
       });
     } catch (error) {
       console.log('Error:', error);
@@ -127,21 +129,21 @@ export class CartsService {
     }
   }
   async updateCartItem(session: TUserSession, dto: UpdateCartDto) {
-    const { bookId, quantity } = dto;
-    const book = await this.prisma.books.findUnique({
+    const { productId, quantity } = dto;
+    const product = await this.prisma.products.findUnique({
       where: {
-        id: bookId,
+        id: productId,
       },
     });
-    if (!book) {
-      throw new BadRequestException('Book not found');
+    if (!product) {
+      throw new BadRequestException('Product not found');
     }
     const cart = await this.prisma.carts.findFirst({
       where: { user_id: session.id },
     });
     const cartItem = await this.prisma.cartItems.findFirst({
       where: {
-        book_id: bookId,
+        product_id: productId,
         cart_id: cart.id,
       },
     });
@@ -155,12 +157,14 @@ export class CartsService {
         },
         data: {
           quantity:
-            quantity < book.stock_quantity ? quantity : book.stock_quantity,
+            quantity < product.stock_quantity
+              ? quantity
+              : product.stock_quantity,
         },
       });
       const updateCart = await tx.carts.findUnique({
         where: { user_id: session.id },
-        include: { CartItems: { include: { book: true } } },
+        include: { CartItems: { include: { product: true } } },
       });
       return updateCart;
     });
@@ -179,7 +183,7 @@ export class CartsService {
     });
     return this.prisma.carts.findFirst({
       where: { user_id: session.id },
-      include: { CartItems: { include: { book: true } } },
+      include: { CartItems: { include: { product: true } } },
     });
   }
   async checkoutCart(session: TUserSession, dto: CheckOutDto) {
@@ -191,7 +195,7 @@ export class CartsService {
     }
     const cartItems = await this.prisma.cartItems.findMany({
       where: { cart_id: cart.id },
-      include: { book: true },
+      include: { product: true },
     });
     if (cartItems.length === 0) {
       throw new BadRequestException('Cart is empty');
@@ -199,7 +203,7 @@ export class CartsService {
     try {
       const order = await this.orderService.createOrder(session, {
         items: cartItems.map((item) => ({
-          bookId: item.book.id,
+          productId: item.product.id,
           quantity: item.quantity,
         })),
         fullName: dto.fullName,
