@@ -14,7 +14,7 @@ import {
 export class OrderItemDto {
   @IsString()
   @IsNotEmpty()
-  bookId: string;
+  productId: string;
 
   @IsNumber()
   @IsNotEmpty()

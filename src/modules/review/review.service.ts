@@ -10,13 +10,13 @@ export class ReviewsService {
   async getAllReviews(dto: GetReviewsDto) {
     const reviews = await this.prisma.reviews.findMany({
       where: {
-        ...(dto.search && { book: { title: { contains: dto.search } } }),
+        ...(dto.search && { product: { title: { contains: dto.search } } }),
         ...(dto.rating && { rating: { in: dto.rating } }),
         ...(dto.date && { created_at: { equals: new Date(dto.date) } }),
         ...(dto.state && { state: dto.state }),
       },
       include: {
-        book: true,
+        product: true,
         user: true,
         order: true,
       },
@@ -25,7 +25,7 @@ export class ReviewsService {
     });
     const itemCount = await this.prisma.reviews.count({
       where: {
-        ...(dto.search && { book: { title: { contains: dto.search } } }),
+        ...(dto.search && { product: { title: { contains: dto.search } } }),
         ...(dto.rating && { rating: { in: dto.rating } }),
         ...(dto.date && { created_at: { equals: new Date(dto.date) } }),
         ...(dto.state && { state: dto.state }),

@@ -81,7 +81,7 @@ async function main() {
     });
   }
   for (let i = 0; i < 1000; i++) {
-    await prisma.books.create({
+    await prisma.products.create({
       data: {
         title: faker.lorem.words(3),
         description: faker.lorem.sentence(),

@@ -1,68 +1,87 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateBookDto } from './dto/create-book.dto';
-import { BookQuery } from './query/book.query';
-import { UpdateBookDto } from './dto/update-book.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { PriceFilterDto } from './dto/filter-by-price.dto';
 import { RatingFilterDto } from './dto/filter-by-rating.dto';
 import { uploadFilesFromFirebase } from 'src/libs/firebase/upload';
 import { EUploadFolder } from 'src/constants/constant';
 import { deleteFilesFromFirebase } from 'src/libs/firebase/delete';
+import { ProductQuery } from './query/product.query';
 
 @Injectable()
-export class BooksService {
+export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAllBooks(bookQuery: BookQuery) {
-    const books = await this.prismaService.books.findMany({
+  async getAllProducts(productQuery: ProductQuery) {
+    const products = await this.prismaService.products.findMany({
       where: {
         title: {
-          contains: bookQuery.title,
+          contains: productQuery.title,
           mode: 'insensitive',
         },
         Category: {
           name: {
-            contains: bookQuery.search ? bookQuery.search : undefined,
+            contains: productQuery.search ? productQuery.search : undefined,
             mode: 'insensitive',
           },
         },
-        ...(bookQuery.status ? { status: bookQuery.status } : {}),
-        ...(bookQuery.min_price && { price: { gte: bookQuery.min_price } }),
-        ...(bookQuery.max_price && { price: { lte: bookQuery.max_price } }),
-        ...(bookQuery.min_star && { avg_stars: { gte: bookQuery.min_star } }),
-        ...(bookQuery.max_star && { avg_stars: { lte: bookQuery.max_star } }),
+        ...(productQuery.status ? { status: productQuery.status } : {}),
+        ...(productQuery.min_price && {
+          price: { gte: productQuery.min_price },
+        }),
+        ...(productQuery.max_price && {
+          price: { lte: productQuery.max_price },
+        }),
+        ...(productQuery.min_star && {
+          avg_stars: { gte: productQuery.min_star },
+        }),
+        ...(productQuery.max_star && {
+          avg_stars: { lte: productQuery.max_star },
+        }),
       },
       include: {
         Category: true,
       },
       orderBy: {
-        [bookQuery.sortBy || 'created_at']: bookQuery.order || 'desc',
+        [productQuery.sortBy || 'created_at']: productQuery.order || 'desc',
       },
-      skip: bookQuery.skip,
-      take: bookQuery.take,
+      skip: productQuery.skip,
+      take: productQuery.take,
     });
-    const itemCount = await this.prismaService.books.count({
+    const itemCount = await this.prismaService.products.count({
       where: {
         title: {
-          contains: bookQuery.title,
+          contains: productQuery.title,
           mode: 'insensitive',
         },
         Category: {
           name: {
-            contains: bookQuery.search ? bookQuery.search : undefined,
+            contains: productQuery.search ? productQuery.search : undefined,
             mode: 'insensitive',
           },
         },
-        ...(bookQuery.status ? { status: bookQuery.status } : {}),
-        ...(bookQuery.min_price && { price: { gte: bookQuery.min_price } }),
-        ...(bookQuery.max_price && { price: { lte: bookQuery.max_price } }),
-        ...(bookQuery.min_star && { avg_stars: { gte: bookQuery.min_star } }),
-        ...(bookQuery.max_star && { avg_stars: { lte: bookQuery.max_star } }),
+        ...(productQuery.status ? { status: productQuery.status } : {}),
+        ...(productQuery.min_price && {
+          price: { gte: productQuery.min_price },
+        }),
+        ...(productQuery.max_price && {
+          price: { lte: productQuery.max_price },
+        }),
+        ...(productQuery.min_star && {
+          avg_stars: { gte: productQuery.min_star },
+        }),
+        ...(productQuery.max_star && {
+          avg_stars: { lte: productQuery.max_star },
+        }),
       },
     });
-    return { books, itemCount };
+    return { products, itemCount };
   }
-  async createBook(body: CreateBookDto, images?: Array<Express.Multer.File>) {
+  async createProduct(
+    body: CreateProductDto,
+    images?: Array<Express.Multer.File>,
+  ) {
     const {
       title,
       author,
@@ -83,14 +102,14 @@ export class BooksService {
       if (images.length > 0) {
         const uploadImagesData = await uploadFilesFromFirebase(
           images,
-          EUploadFolder.book,
+          EUploadFolder.product,
         );
         if (!uploadImagesData.success) {
           throw new Error('Failed to upload images!');
         }
         imageUrls = uploadImagesData.urls;
       }
-      const newBook = await this.prismaService.books.create({
+      const newProduct = await this.prismaService.products.create({
         data: {
           title: title,
           author: author,
@@ -102,7 +121,7 @@ export class BooksService {
           image_url: imageUrls,
         },
       });
-      return newBook;
+      return newProduct;
     } catch (error) {
       console.log('Error:', error.message);
       if (images.length && !imageUrls.length)
@@ -112,23 +131,23 @@ export class BooksService {
       });
     }
   }
-  async updateBook(
+  async updateProduct(
     id: string,
-    dto: UpdateBookDto,
+    dto: UpdateProductDto,
     images: Array<Express.Multer.File>,
   ) {
-    const existingBook = await this.prismaService.books.findFirst({
+    const existingProduct = await this.prismaService.products.findFirst({
       where: { id: id },
     });
-    if (!existingBook) {
-      throw new BadRequestException('Book not found');
+    if (!existingProduct) {
+      throw new BadRequestException('Product not found');
     }
     let imageUrls = [];
     try {
       if (images.length > 0) {
         const uploadImagesData = await uploadFilesFromFirebase(
           images,
-          EUploadFolder.book,
+          EUploadFolder.product,
         );
         if (!uploadImagesData.success) {
           throw new Error('Failed to upload images!');
@@ -136,18 +155,18 @@ export class BooksService {
         imageUrls = uploadImagesData.urls;
       }
       return await this.prismaService.$transaction(async (tx) => {
-        const updatedBook = await tx.books.update({
+        const updatedProduct = await tx.products.update({
           where: { id },
           data: {
             title: dto.title,
             description: dto.description,
             image_url: imageUrls.length
               ? [...(dto.image_url ? dto.image_url : []), ...imageUrls]
-              : existingBook.image_url,
-            price: dto?.price ?? existingBook.price,
+              : existingProduct.image_url,
+            price: dto?.price ?? existingProduct.price,
           },
         });
-        return updatedBook;
+        return updatedProduct;
       });
     } catch (error) {
       console.log('Error:', error.message);
@@ -158,17 +177,17 @@ export class BooksService {
       });
     }
   }
-  async getBookDetailsById(id: string) {
-    const book = await this.prismaService.books.findFirst({
+  async getProductDetailsById(id: string) {
+    const product = await this.prismaService.products.findFirst({
       where: { id },
     });
-    if (!book) {
-      throw new BadRequestException('Book not found');
+    if (!product) {
+      throw new BadRequestException('Product not found');
     }
-    return book;
+    return product;
   }
-  async searchByPrice(dto: PriceFilterDto, query: BookQuery) {
-    const books = await this.prismaService.books.findMany({
+  async searchByPrice(dto: PriceFilterDto, query: ProductQuery) {
+    const products = await this.prismaService.products.findMany({
       where: {
         price: {
           gte: dto.minPrice,
@@ -179,7 +198,7 @@ export class BooksService {
       skip: query.skip,
       orderBy: { [query.sortBy]: query.order },
     });
-    const itemCount = await this.prismaService.books.count({
+    const itemCount = await this.prismaService.products.count({
       where: {
         price: {
           gte: dto.minPrice,
@@ -187,10 +206,10 @@ export class BooksService {
         },
       },
     });
-    return { books, itemCount };
+    return { products, itemCount };
   }
-  async searchByRating(dto: RatingFilterDto, query: BookQuery) {
-    const books = await this.prismaService.books.findMany({
+  async searchByRating(dto: RatingFilterDto, query: ProductQuery) {
+    const products = await this.prismaService.products.findMany({
       where: {
         avg_stars: {
           gte: dto.minRating,
@@ -201,7 +220,7 @@ export class BooksService {
       skip: query.skip,
       orderBy: { [query.sortBy]: query.order },
     });
-    const itemCount = await this.prismaService.books.count({
+    const itemCount = await this.prismaService.products.count({
       where: {
         avg_stars: {
           gte: dto.minRating,
@@ -209,10 +228,10 @@ export class BooksService {
         },
       },
     });
-    return { books, itemCount };
+    return { products, itemCount };
   }
-  async searchBook(query: string, bookQuery: BookQuery) {
-    const books = await this.prismaService.books.findMany({
+  async searchProduct(query: string, productQuery: ProductQuery) {
+    const products = await this.prismaService.products.findMany({
       where: {
         OR: [
           {
@@ -228,13 +247,13 @@ export class BooksService {
             },
           },
         ],
-        ...(bookQuery.status && { status: bookQuery.status }),
+        ...(productQuery.status && { status: productQuery.status }),
       },
-      take: bookQuery.take,
-      skip: bookQuery.skip,
-      orderBy: { [bookQuery.sortBy]: bookQuery.order },
+      take: productQuery.take,
+      skip: productQuery.skip,
+      orderBy: { [productQuery.sortBy]: productQuery.order },
     });
-    const itemCount = await this.prismaService.books.count({
+    const itemCount = await this.prismaService.products.count({
       where: {
         OR: [
           {
@@ -252,47 +271,47 @@ export class BooksService {
         ],
       },
     });
-    return { books, itemCount };
+    return { products, itemCount };
   }
-  async searchByCategory(categoryId: string, bookQuery: BookQuery) {
-    const books = await this.prismaService.books.findMany({
+  async searchByCategory(categoryId: string, productQuery: ProductQuery) {
+    const products = await this.prismaService.products.findMany({
       where: {
         Category: {
           id: categoryId,
         },
-        ...(bookQuery.status && { status: bookQuery.status }),
+        ...(productQuery.status && { status: productQuery.status }),
       },
-      take: bookQuery.take,
-      skip: bookQuery.skip,
-      orderBy: { [bookQuery.sortBy]: bookQuery.order },
+      take: productQuery.take,
+      skip: productQuery.skip,
+      orderBy: { [productQuery.sortBy]: productQuery.order },
     });
-    const itemCount = await this.prismaService.books.count({
+    const itemCount = await this.prismaService.products.count({
       where: {
         Category: {
           id: categoryId,
         },
       },
     });
-    return { books, itemCount };
+    return { products, itemCount };
   }
-  async activeBook(id: string) {
-    const existingBook = await this.prismaService.books.update({
+  async activeProduct(id: string) {
+    const existingProduct = await this.prismaService.products.update({
       where: { id },
       data: { status: 'ACTIVE' },
     });
-    if (!existingBook) {
-      throw new BadRequestException('Book not found');
+    if (!existingProduct) {
+      throw new BadRequestException('Product not found');
     }
-    return existingBook;
+    return existingProduct;
   }
-  async inactiveBook(id: string) {
-    const existingBook = await this.prismaService.books.update({
+  async inactiveProduct(id: string) {
+    const existingProduct = await this.prismaService.products.update({
       where: { id },
       data: { status: 'INACTIVE' },
     });
-    if (!existingBook) {
-      throw new BadRequestException('Book not found');
+    if (!existingProduct) {
+      throw new BadRequestException('Product not found');
     }
-    return existingBook;
+    return existingProduct;
   }
 }

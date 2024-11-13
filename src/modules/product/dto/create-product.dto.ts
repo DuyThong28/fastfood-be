@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateBookDto {
+export class CreateProductDto {
   @ApiProperty({
-    description: 'The title of a book',
+    description: 'The title of a product',
     type: String,
     required: true,
     example: 'The Great Gatsby',
@@ -13,7 +13,7 @@ export class CreateBookDto {
   title: string;
 
   @ApiProperty({
-    description: 'The author id of a book',
+    description: 'The author id of a product',
     required: true,
     example: 'Haruki Murakami',
   })
@@ -21,7 +21,7 @@ export class CreateBookDto {
   author: string;
 
   @ApiProperty({
-    description: 'The category id of a book',
+    description: 'The category id of a product',
     required: true,
     example: '123e4567-e89b-12d3-a456-426614174001',
   })
@@ -29,7 +29,7 @@ export class CreateBookDto {
   categoryId: string;
 
   @ApiProperty({
-    description: 'The entry price of a book',
+    description: 'The entry price of a product',
     required: true,
     example: '100000',
   })
@@ -38,7 +38,7 @@ export class CreateBookDto {
   entryPrice: string;
 
   @ApiProperty({
-    description: 'The sale price of a book',
+    description: 'The sale price of a product',
     required: true,
     example: '200000',
   })
@@ -47,7 +47,7 @@ export class CreateBookDto {
   price: string;
 
   @ApiProperty({
-    description: 'The number of books in stock',
+    description: 'The number of products in stock',
     required: true,
     example: 10,
   })
@@ -56,9 +56,9 @@ export class CreateBookDto {
   stockQuantity: string;
 
   @ApiProperty({
-    description: 'The description of a book',
+    description: 'The description of a product',
     required: true,
-    example: 'This is a great book',
+    example: 'This is a great product',
   })
   @IsString()
   @IsNotEmpty({ message: 'description is required' })

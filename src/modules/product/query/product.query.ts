@@ -3,7 +3,7 @@ import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { BOOKSTATUS } from 'src/constants/enum';
 import { PageOptionsDto } from 'src/utils/page_option.dto';
 
-export class BookQuery extends PageOptionsDto {
+export class ProductQuery extends PageOptionsDto {
   @ApiProperty({
     description: 'Book title',
     required: false,
@@ -57,7 +57,7 @@ export class BookQuery extends PageOptionsDto {
   @IsString()
   search?: string;
 
-  constructor(bookQuery: Partial<BookQuery> = {}) {
+  constructor(bookQuery: Partial<ProductQuery> = {}) {
     super();
     Object.assign(this, bookQuery);
   }
