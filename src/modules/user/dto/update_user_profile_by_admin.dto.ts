@@ -16,6 +16,7 @@ export class UpdateUserProfileByAdmin {
   @IsNotEmpty()
   role: Role;
   @IsString()
+  @IsOptional()
   @IsNotEmpty()
   phone: string;
   @IsNotEmpty()
