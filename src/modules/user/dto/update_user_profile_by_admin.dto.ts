@@ -1,12 +1,13 @@
 import { Gender, Role } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 
 export class UpdateUserProfileByAdmin {
   @IsNotEmpty()
   @IsString()
   id: string;
+  @IsOptional()
+  @IsString()
   @Min(8)
-  @IsNotEmpty()
   password: string;
   @IsString()
   @IsNotEmpty()
@@ -22,5 +23,5 @@ export class UpdateUserProfileByAdmin {
   gender: Gender;
   @IsNotEmpty()
   @IsString()
-  birthday: Date;
+  birthday: string;
 }
