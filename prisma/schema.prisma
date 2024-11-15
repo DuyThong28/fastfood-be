@@ -162,6 +162,15 @@ model Address {
   Users   Users? @relation(fields: [user_id], references: [id])
 }
 
+model Statistic {
+  id              String        @id    
+  day             Int
+  month           Int          
+  year            Int
+  total_order     Int
+  total_revenue   Decimal
+}
+
 enum Role {
   CUSTOMER
   ADMIN
