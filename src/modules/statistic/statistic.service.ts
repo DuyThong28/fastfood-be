@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { createStatisticDto } from './dto/createStatistic.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Cron } from '@nestjs/schedule';
+import { StatisticPageOptionsDto } from './dto/getStatistics.dto';
 
 @Injectable()
 export class StatisticService {
@@ -72,6 +73,19 @@ export class StatisticService {
           status: 'SUCCESS',
         },
       });
+      if (totalOrder == 0) {
+        const newStatistic = await this.prismaService.statistic.create({
+          data: {
+            id: uuidv4(),
+            day: today.getDate(),
+            month: today.getMonth() + 1,
+            year: today.getFullYear(),
+            total_order: totalOrder,
+            total_revenue: 0,
+          },
+        });
+        return newStatistic;
+      }
       const totalRevenue = await this.prismaService.orders.groupBy({
         by: ['status'],
         _sum: { total_price: true },
@@ -97,5 +111,19 @@ export class StatisticService {
     } catch (error) {
       throw new Error(error.message);
     }
+  }
+  async getStatistics(query: StatisticPageOptionsDto) {
+    const { take, sortBy1, sortBy2, sortBy3, order, skip } = query;
+    const statistics = await this.prismaService.statistic.findMany({
+      skip: skip,
+      take: take,
+      orderBy: [
+        { [sortBy1]: order },
+        { [sortBy2]: order },
+        { [sortBy3]: order },
+      ],
+    });
+    const itemCount = await this.prismaService.statistic.count();
+    return { statistics, itemCount };
   }
 }
