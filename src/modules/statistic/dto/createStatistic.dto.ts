@@ -7,8 +7,4 @@ export class createStatisticDto {
   month: number;
   @IsNotEmpty()
   year: number;
-  @IsNotEmpty()
-  totalOrder: number;
-  @IsNotEmpty()
-  totalRevenue: number;
 }
