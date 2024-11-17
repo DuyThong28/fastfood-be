@@ -114,4 +114,12 @@ export const END_POINTS = {
     BASE: '/auth/google',
     REDIRECT: '/oauth2/redirect/code',
   },
+  ADDRESS: {
+    BASE: '/address',
+    GET_ALL_BY_USER: '/get-all-by-user',
+    GET_ALL_BY_ADMIN: '/get-all-by-admin',
+    CREATE: '/create',
+    UPDATE: '/update',
+    DELETE: '/delete/:id',
+  },
 };
