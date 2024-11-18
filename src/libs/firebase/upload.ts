@@ -21,7 +21,7 @@ export const uploadFilesFromFirebase = async (
             contentType: item.mimetype,
           });
           await file.makePublic();
-          return `https://firebasestorage.googleapis.com/v0/b/${configuration().firebase_project_id}.appspot.com/o/${uploadFolder}%2F${fileName}?alt=media`;
+          return `https://firebasestorage.googleapis.com/v0/b/${configuration().firebase_project_id}.firebasestorage.app/o/${uploadFolder}%2F${fileName}?alt=media`;
         } catch (error) {
           Logger.log('Error uploading file to Firebase Storage:', error);
           return '';
