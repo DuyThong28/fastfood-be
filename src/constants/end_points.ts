@@ -119,7 +119,7 @@ export const END_POINTS = {
     GET_ALL_BY_USER: '/get-all-by-user',
     GET_ALL_BY_ADMIN: '/get-all-by-admin',
     CREATE: '/create',
-    UPDATE: '/update',
+    UPDATE: '/update/:id',
     DELETE: '/delete/:id',
   },
 };

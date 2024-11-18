@@ -36,7 +36,6 @@ export class CreateOrderDto {
   fullName: string;
 
   @IsString()
-  @IsPhoneNumber('VN', { message: 'Phone number is not valid' })
   @IsNotEmpty()
   phoneNumber: string;
 
