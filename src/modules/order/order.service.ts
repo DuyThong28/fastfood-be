@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TUserSession } from 'src/common/decorators/user-session.decorator';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, ReviewState } from '@prisma/client';
 import { OrderPageOptionsDto } from './dto/find_all_order.dto';
 import { CreateOrderDto } from './dto/create_order.dto';
 import { CreateReviewDto } from './dto/create_review.dto';
@@ -246,13 +246,6 @@ export class OrderService {
         const newAvgStars =
           (Number(product.avg_stars) * product.total_reviews + dto.star) /
           newTotalReviews;
-        await tx.products.update({
-          where: { id: product.id },
-          data: {
-            total_reviews: newTotalReviews,
-            avg_stars: newAvgStars,
-          },
-        });
         const review = await tx.reviews.create({
           data: {
             user_id: session.id,
@@ -260,12 +253,39 @@ export class OrderService {
             rating: dto.star,
             description: dto.description,
             title: dto.title,
-            order_id: id,
+            order_item_id: orderDetailId,
           },
           include: {
             product: true,
           },
         });
+        await tx.products.update({
+          where: { id: product.id },
+          data: {
+            total_reviews: newTotalReviews,
+            avg_stars: newAvgStars,
+          },
+        });
+        await tx.orderItems.update({
+          where: { id: orderDetailId },
+          data: { review_status: ReviewState.REVIEWED, review_id: review.id },
+        });
+        const orderItems = await tx.orderItems.findMany({
+          where: { order_id: id },
+        });
+        let flag = true;
+        for (const item of orderItems) {
+          if (item.review_status !== ReviewState.REVIEWED) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          await tx.orders.update({
+            where: { id },
+            data: { review_state: ReviewState.REVIEWED },
+          });
+        }
         return review;
       });
     } catch (error) {

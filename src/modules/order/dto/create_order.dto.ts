@@ -4,7 +4,6 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumber,
-  IsPhoneNumber,
   IsPositive,
   IsString,
   Min,

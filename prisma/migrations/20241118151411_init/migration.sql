@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('CUSTOMER', 'ADMIN');
+CREATE TYPE "Role" AS ENUM ('CUSTOMER', 'ADMIN', 'MANAGER', 'STAFF');
 
 -- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
@@ -8,10 +8,10 @@ CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'PROCESSING', 'DELIVERED', 'CANCELLED', 'SUCCESS', 'REJECT');
 
 -- CreateEnum
-CREATE TYPE "BookStatus" AS ENUM ('INACTIVE', 'ACTIVE');
+CREATE TYPE "ProductStatus" AS ENUM ('INACTIVE', 'ACTIVE');
 
 -- CreateEnum
-CREATE TYPE "ReviewState" AS ENUM ('UNANSWERED', 'ANSWERED');
+CREATE TYPE "ReviewState" AS ENUM ('UNREVIEW', 'REVIEWED', 'REPLIED');
 
 -- CreateTable
 CREATE TABLE "Users" (
@@ -44,7 +44,7 @@ CREATE TABLE "Vertifications" (
 );
 
 -- CreateTable
-CREATE TABLE "Books" (
+CREATE TABLE "Products" (
     "id" TEXT NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "author" TEXT NOT NULL,
@@ -60,11 +60,11 @@ CREATE TABLE "Books" (
     "total_reviews" INTEGER NOT NULL DEFAULT 0,
     "sold_quantity" INTEGER NOT NULL DEFAULT 0,
     "image_url" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "status" "BookStatus" NOT NULL DEFAULT 'ACTIVE',
+    "status" "ProductStatus" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Books_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Products_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -91,6 +91,7 @@ CREATE TABLE "Orders" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
+    "review_status" "ReviewState" NOT NULL DEFAULT 'UNREVIEW',
     "total_price" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "full_name" TEXT NOT NULL,
     "phone_number" TEXT NOT NULL,
@@ -105,10 +106,12 @@ CREATE TABLE "Orders" (
 CREATE TABLE "OrderItems" (
     "id" TEXT NOT NULL,
     "order_id" TEXT NOT NULL,
-    "book_id" TEXT NOT NULL,
+    "product_id" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "price" DECIMAL(65,30) NOT NULL,
     "total_price" DECIMAL(65,30) NOT NULL,
+    "review_status" "ReviewState" NOT NULL DEFAULT 'UNREVIEW',
+    "review_id" INTEGER,
 
     CONSTRAINT "OrderItems_pkey" PRIMARY KEY ("id")
 );
@@ -126,7 +129,7 @@ CREATE TABLE "Carts" (
 CREATE TABLE "CartItems" (
     "id" SERIAL NOT NULL,
     "cart_id" INTEGER NOT NULL,
-    "book_id" TEXT NOT NULL,
+    "product_id" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -137,13 +140,14 @@ CREATE TABLE "CartItems" (
 CREATE TABLE "Reviews" (
     "id" SERIAL NOT NULL,
     "user_id" TEXT NOT NULL,
-    "book_id" TEXT NOT NULL,
+    "product_id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "rating" DECIMAL(65,30) NOT NULL,
     "description" TEXT NOT NULL,
-    "state" "ReviewState" NOT NULL DEFAULT 'UNANSWERED',
+    "state" "ReviewState" NOT NULL DEFAULT 'UNREVIEW',
     "reply_review_id" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "order_item_id" TEXT NOT NULL,
 
     CONSTRAINT "Reviews_pkey" PRIMARY KEY ("id")
 );
@@ -162,8 +166,9 @@ CREATE TABLE "ReplyReviews" (
 CREATE TABLE "Address" (
     "id" SERIAL NOT NULL,
     "user_id" TEXT NOT NULL,
-    "lon" DOUBLE PRECISION NOT NULL,
-    "lat" DOUBLE PRECISION NOT NULL,
+    "full_name" TEXT NOT NULL,
+    "phone_number" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
 
     CONSTRAINT "Address_pkey" PRIMARY KEY ("id")
 );
@@ -187,13 +192,16 @@ CREATE UNIQUE INDEX "Authors_name_birthday_description_key" ON "Authors"("name",
 CREATE UNIQUE INDEX "Carts_user_id_key" ON "Carts"("user_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Reviews_order_item_id_key" ON "Reviews"("order_item_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "ReplyReviews_review_id_key" ON "ReplyReviews"("review_id");
 
 -- AddForeignKey
 ALTER TABLE "Vertifications" ADD CONSTRAINT "Vertifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Books" ADD CONSTRAINT "Books_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Products" ADD CONSTRAINT "Products_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Orders" ADD CONSTRAINT "Orders_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -202,7 +210,7 @@ ALTER TABLE "Orders" ADD CONSTRAINT "Orders_user_id_fkey" FOREIGN KEY ("user_id"
 ALTER TABLE "OrderItems" ADD CONSTRAINT "OrderItems_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "Orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderItems" ADD CONSTRAINT "OrderItems_book_id_fkey" FOREIGN KEY ("book_id") REFERENCES "Books"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "OrderItems" ADD CONSTRAINT "OrderItems_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Carts" ADD CONSTRAINT "Carts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -211,13 +219,16 @@ ALTER TABLE "Carts" ADD CONSTRAINT "Carts_user_id_fkey" FOREIGN KEY ("user_id") 
 ALTER TABLE "CartItems" ADD CONSTRAINT "CartItems_cart_id_fkey" FOREIGN KEY ("cart_id") REFERENCES "Carts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CartItems" ADD CONSTRAINT "CartItems_book_id_fkey" FOREIGN KEY ("book_id") REFERENCES "Books"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CartItems" ADD CONSTRAINT "CartItems_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Reviews" ADD CONSTRAINT "Reviews_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Reviews" ADD CONSTRAINT "Reviews_book_id_fkey" FOREIGN KEY ("book_id") REFERENCES "Books"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Reviews" ADD CONSTRAINT "Reviews_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Reviews" ADD CONSTRAINT "Reviews_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "OrderItems"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ReplyReviews" ADD CONSTRAINT "ReplyReviews_review_id_fkey" FOREIGN KEY ("review_id") REFERENCES "Reviews"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

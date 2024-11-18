@@ -109,6 +109,8 @@ export const END_POINTS = {
     GET_ALL: '/get-all',
     GET_ONE: '/:id',
     REPLY: '/:id/reply',
+    GET_REVIEW_BY_PRODUCT_ID: '/get-review-by-product-id/:productId',
+    GET_REVIEW_BY_ORDER_ID: '/get-review-by-order-id/:orderId',
   },
   GOOGLE_OAUTH: {
     BASE: '/auth/google',
