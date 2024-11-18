@@ -7,6 +7,7 @@ import { GoogleOauthModule } from './google_oauth/google_oauth.module';
 import { OrdersModule } from './order/order.module';
 import { ReviewsModule } from './review/review.module';
 import { UsersModule } from './user/user.module';
+import { AddressModule } from './address/address.module';
 const Modules = [
   EmailModule,
   UsersModule,
@@ -17,6 +18,7 @@ const Modules = [
   OrdersModule,
   GoogleOauthModule,
   ReviewsModule,
+  AddressModule,
 ];
 
 export default Modules;
