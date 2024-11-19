@@ -102,13 +102,13 @@ export class OrdersController {
     const message = 'Order details retrieved successfully';
     return new StandardResponse<Orders>(order, message, HttpStatusCode.OK);
   }
-  @Post(`${GET_ONE}/order-details/:orderDetailsId/:bookId`)
+  @Post(`${GET_ONE}/order-details/:orderDetailsId/:productId`)
   async createReview(
     @UserSession() session: TUserSession,
     @Body() dto: CreateReviewDto,
     @Param('id', ParseUUIDPipe) id: string,
     @Param('orderDetailsId', ParseUUIDPipe) orderDetailsId: string,
-    @Param('bookId', ParseUUIDPipe) bookId: string,
+    @Param('productId', ParseUUIDPipe) productId: string,
   ): Promise<StandardResponse<Reviews>> {
     console.log(dto);
     const review = await this.orderService.createReview(
@@ -116,7 +116,7 @@ export class OrdersController {
       dto,
       id,
       orderDetailsId,
-      bookId,
+      productId,
     );
     const message = 'Comment created successfully';
     return new StandardResponse(review, message, HttpStatusCode.CREATED);

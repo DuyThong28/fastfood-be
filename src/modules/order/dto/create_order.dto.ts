@@ -4,7 +4,6 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumber,
-  IsPhoneNumber,
   IsPositive,
   IsString,
   Min,
@@ -36,7 +35,6 @@ export class CreateOrderDto {
   fullName: string;
 
   @IsString()
-  @IsPhoneNumber('VN', { message: 'Phone number is not valid' })
   @IsNotEmpty()
   phoneNumber: string;
 
