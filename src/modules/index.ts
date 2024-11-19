@@ -19,6 +19,8 @@ const Modules = [
   OrdersModule,
   GoogleOauthModule,
   ReviewsModule,
+  AddressModule,
+  StatisticModule,
 ];
 
 export default Modules;

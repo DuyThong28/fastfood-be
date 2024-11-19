@@ -23,6 +23,19 @@ export class StatisticService {
           status: 'SUCCESS',
         },
       });
+      if (totalOrder == 0) {
+        const newStatistic = await this.prismaService.statistic.create({
+          data: {
+            id: uuidv4(),
+            day: day,
+            month: month,
+            year: year,
+            total_order: totalOrder,
+            total_revenue: 0,
+          },
+        });
+        return newStatistic;
+      }
       const totalRevenue = await this.prismaService.orders.groupBy({
         by: ['status'],
         _sum: { total_price: true },
@@ -115,6 +128,11 @@ export class StatisticService {
   async getStatistics(query: StatisticPageOptionsDto) {
     const { take, sortBy1, sortBy2, sortBy3, order, skip } = query;
     const statistics = await this.prismaService.statistic.findMany({
+      where: {
+        day: query.day === 0 ? undefined : query.day,
+        month: query.month === 0 ? undefined : query.month,
+        year: query.year === 0 ? undefined : query.year,
+      },
       skip: skip,
       take: take,
       orderBy: [
@@ -125,5 +143,15 @@ export class StatisticService {
     });
     const itemCount = await this.prismaService.statistic.count();
     return { statistics, itemCount };
+  }
+  async getBestSellerProduct() {
+    const bestSellerProduct = await this.prismaService.products.findMany({
+      orderBy: [{ sold_quantity: 'desc' }],
+      take: 3,
+      where: {
+        status: 'ACTIVE',
+      },
+    });
+    return bestSellerProduct;
   }
 }
