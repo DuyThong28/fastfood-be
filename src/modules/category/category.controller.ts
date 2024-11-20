@@ -22,6 +22,7 @@ import { PageResponseDto } from 'src/utils/page_response.dto';
 import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
 import { UpdateCategoryDto } from './dto/update_category.dto';
 import { CategoryPageOptionsDto } from './dto/find_all_category.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 const {
   CATEGORIES: {
@@ -60,6 +61,7 @@ export class CategoryController {
     type: Number,
     description: 'Items per page',
   })
+  @Public()
   async getAll(
     @Query() query: CategoryPageOptionsDto,
     @Query('disable', new DefaultValuePipe(undefined))
