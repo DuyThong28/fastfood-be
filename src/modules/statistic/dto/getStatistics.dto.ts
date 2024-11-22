@@ -15,7 +15,7 @@ export class StatisticPageOptionsDto extends PageOptionsDto {
   @IsNumber()
   year?: number = 0;
   @IsDate()
-  start: Date;
+  start?: Date = new Date();
   @IsDate()
-  end: Date;
+  end?: Date = new Date();
 }
