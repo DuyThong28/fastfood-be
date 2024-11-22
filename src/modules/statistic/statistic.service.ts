@@ -154,4 +154,45 @@ export class StatisticService {
     });
     return bestSellerProduct;
   }
+  async getSoldProduct(query: StatisticPageOptionsDto) {
+    const { start, end } = query;
+
+    const orders = await this.prismaService.orders.findMany({
+      where: {
+        updated_at: {
+          gte: start,
+          lt: end,
+        },
+        status: 'SUCCESS',
+      },
+      include: {
+        OrderItems: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    const orderItems = orders.map((item) => item.OrderItems);
+    const orderItemFlatMap = orderItems.flatMap((orderItem) => orderItem);
+    const result = orderItemFlatMap.reduce((acc, current) => {
+      const existingProduct = acc.find(
+        (item) => item.product_id === current.product_id,
+      );
+
+      if (existingProduct) {
+        existingProduct.quantity += current.quantity;
+      } else {
+        acc.push({
+          ...current,
+          quantity: current.quantity,
+        });
+      }
+
+      return acc;
+    }, []);
+
+    return result;
+  }
 }

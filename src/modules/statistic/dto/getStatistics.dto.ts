@@ -1,4 +1,4 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsDate } from 'class-validator';
 import { PageOptionsDto } from 'src/utils/page_option.dto';
 
 export class StatisticPageOptionsDto extends PageOptionsDto {
@@ -14,4 +14,8 @@ export class StatisticPageOptionsDto extends PageOptionsDto {
   month?: number = 0;
   @IsNumber()
   year?: number = 0;
+  @IsDate()
+  start: Date;
+  @IsDate()
+  end: Date;
 }

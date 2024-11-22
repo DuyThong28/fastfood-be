@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { createStatisticDto } from './dto/createStatistic.dto';
 import { StatisticService } from './statistic.service';
-import { Products, Statistic } from '@prisma/client';
+import { OrderItems, Products, Statistic } from '@prisma/client';
 import { StandardResponse } from 'src/utils/response.dto';
 import HttpStatusCode from 'src/constants/http_status_code';
 import { StatisticPageOptionsDto } from './dto/getStatistics.dto';
@@ -38,5 +38,13 @@ export class StatisticController {
       await this.statisticService.getBestSellerProduct();
     const message = 'Get best seller product successfully';
     return new StandardResponse(bestSellerProduct, message, HttpStatusCode.OK);
+  }
+  @Get('/soldProduct')
+  async getSoldProduct(
+    @Query() query: StatisticPageOptionsDto,
+  ): Promise<StandardResponse<OrderItems[]>> {
+    const result = await this.statisticService.getSoldProduct(query);
+    const message = 'Get sold product successfully';
+    return new StandardResponse(result, message, HttpStatusCode.OK);
   }
 }
