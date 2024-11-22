@@ -147,10 +147,13 @@ export class StatisticService {
   async getBestSellerProduct() {
     const bestSellerProduct = await this.prismaService.products.findMany({
       orderBy: [{ sold_quantity: 'desc' }],
-      take: 3,
+      take: 5,
       where: {
         status: 'ACTIVE',
         sold_quantity: { gte: 1 },
+      },
+      include: {
+        Category: true,
       },
     });
     return bestSellerProduct;
