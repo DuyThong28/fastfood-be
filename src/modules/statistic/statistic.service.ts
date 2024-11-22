@@ -193,6 +193,8 @@ export class StatisticService {
       return acc;
     }, []);
 
+    result.sort((a, b) => b.quantity - a.quantity);
+
     return result;
   }
 }
