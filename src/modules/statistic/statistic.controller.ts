@@ -47,4 +47,15 @@ export class StatisticController {
     const message = 'Get sold product successfully';
     return new StandardResponse(result, message, HttpStatusCode.OK);
   }
+  @Get('/totalCustomerBought')
+  async getTotalCustomerBought(): Promise<StandardResponse<number>> {
+    const totalCustomerBought =
+      await this.statisticService.getTotalCustomerBought();
+    const message = 'Get total customer bought successfully';
+    return new StandardResponse(
+      totalCustomerBought,
+      message,
+      HttpStatusCode.OK,
+    );
+  }
 }

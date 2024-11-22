@@ -150,6 +150,7 @@ export class StatisticService {
       take: 3,
       where: {
         status: 'ACTIVE',
+        sold_quantity: { gte: 1 },
       },
     });
     return bestSellerProduct;
@@ -195,6 +196,19 @@ export class StatisticService {
 
     result.sort((a, b) => b.quantity - a.quantity);
 
+    return result;
+  }
+
+  async getTotalCustomerBought() {
+    const result = await this.prismaService.users.count({
+      where: {
+        Orders: {
+          some: {
+            status: 'SUCCESS',
+          },
+        },
+      },
+    });
     return result;
   }
 }
