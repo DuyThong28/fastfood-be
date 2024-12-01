@@ -1,0 +1,79 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { v4 as uuidv4 } from 'uuid';
+import dialogflow from '@google-cloud/dialogflow';
+import { StatisticService } from '../statistic/statistic.service';
+import { requestMessageDto } from './dto/requestMessage.dto';
+
+const CREDENTIALS = JSON.parse(process.env.CREDENTIALS);
+const PROJECTID = CREDENTIALS.project_id;
+
+const CONFIGURATION = {
+  credentials: {
+    private_key: CREDENTIALS['private_key'],
+    client_email: CREDENTIALS['client_email'],
+  },
+};
+
+const sessionClient = new dialogflow.SessionsClient(CONFIGURATION);
+
+@Injectable()
+export class ChatbotService {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly statisticService: StatisticService,
+  ) {}
+  async chatbot(requestMessageDto: requestMessageDto) {
+    try {
+      const message = requestMessageDto.message;
+      const sessionId = uuidv4();
+
+      const sessionPath = sessionClient.projectAgentSessionPath(
+        PROJECTID,
+        sessionId,
+      );
+
+      const request = {
+        session: sessionPath,
+        queryInput: {
+          text: {
+            text: message,
+            languageCode: 'vi',
+          },
+        },
+      };
+
+      const responses = await sessionClient.detectIntent(request);
+      const result = responses[0].queryResult;
+
+      if (result.fulfillmentText === 'Best Seller') {
+        const response =
+          'Chào bạn! FoodzyBot rất vui được giúp bạn tìm món ăn ngon nhé. Hiện tại, các món ăn được khách hàng của chúng mình yêu thích nhất là:';
+        const data = await this.statisticService.getBestSellerProduct();
+        return { response, data };
+      }
+
+      if (result.fulfillmentText.substring(0, 8) === 'Category') {
+        const category = result.fulfillmentText.substring(10);
+        const response = `Chào bạn! FoodzyBot sẽ gợi ý cho bạn một số ${category} hot nhất nhé!`;
+        const data = await this.prismaService.products.findMany({
+          orderBy: [{ sold_quantity: 'desc' }],
+          take: 5,
+          where: {
+            status: 'ACTIVE',
+            Category: {
+              name: category,
+            },
+          },
+        });
+        return { response, data };
+      }
+
+      const response = result.fulfillmentText;
+      const data = null;
+      return { response, data };
+    } catch (err) {
+      throw new Error(`Error in chatbot: ${err.message}`);
+    }
+  }
+}

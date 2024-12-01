@@ -9,6 +9,7 @@ import { ReviewsModule } from './review/review.module';
 import { UsersModule } from './user/user.module';
 import { AddressModule } from './address/address.module';
 import { StatisticModule } from './statistic/statistic.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 const Modules = [
   EmailModule,
   UsersModule,
@@ -21,6 +22,7 @@ const Modules = [
   ReviewsModule,
   AddressModule,
   StatisticModule,
+  ChatbotModule,
 ];
 
 export default Modules;

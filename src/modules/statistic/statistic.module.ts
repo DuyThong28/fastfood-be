@@ -8,5 +8,6 @@ import { ScheduleModule } from '@nestjs/schedule';
   imports: [PrismaModule, ScheduleModule.forRoot()],
   controllers: [StatisticController],
   providers: [StatisticService],
+  exports: [StatisticService],
 })
 export class StatisticModule {}
