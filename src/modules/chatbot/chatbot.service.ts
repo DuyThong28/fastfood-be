@@ -18,11 +18,11 @@ const CONFIGURATION = {
 const sessionClient = new dialogflow.SessionsClient(CONFIGURATION);
 
 const entityCategoryId =
-  'projects/agent/fastfood-egpp/editEntity/70907846-7225-4e48-abb3-8bbfb4d8d7dd';
+  'projects/fastfood-egpp/agent/entityTypes/70907846-7225-4e48-abb3-8bbfb4d8d7dd';
 const entityTypesClient = new dialogflow.EntityTypesClient(CONFIGURATION);
 
 const entityOrderIdId =
-  'projects/agent/fastfood-egpp/editEntity/2b4a5a53-93ea-4dee-a7fc-478ec440f19a';
+  'projects/fastfood-egpp/agent/entityTypes/2b4a5a53-93ea-4dee-a7fc-478ec440f19a';
 
 @Injectable()
 export class ChatbotService {
