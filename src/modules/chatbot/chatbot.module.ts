@@ -8,5 +8,6 @@ import { StatisticModule } from '../statistic/statistic.module';
   imports: [PrismaModule, StatisticModule],
   providers: [ChatbotService],
   controllers: [ChatbotController],
+  exports: [ChatbotService],
 })
 export class ChatbotModule {}
