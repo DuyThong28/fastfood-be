@@ -108,29 +108,4 @@ export class ChatbotService {
       throw new Error(err.message);
     }
   }
-  async deleteEntityCategory(category: string) {
-    try {
-      const [entityType] = await entityTypesClient.getEntityType({
-        name: entityCategoryId,
-      });
-
-      const existingValues = entityType.entities.map((entity) => entity.value);
-
-      if (existingValues.includes(category)) {
-        const entityIndex = entityType.entities.findIndex(
-          (entity) => entity.value === category,
-        );
-
-        entityType.entities.splice(entityIndex, 1);
-      }
-
-      const updateEntityRequest = {
-        entityType: entityType,
-      };
-
-      await entityTypesClient.updateEntityType(updateEntityRequest);
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
 }
