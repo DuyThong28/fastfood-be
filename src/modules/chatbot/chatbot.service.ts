@@ -21,6 +21,9 @@ const entityCategoryId =
   'projects/agent/fastfood-egpp/editEntity/70907846-7225-4e48-abb3-8bbfb4d8d7dd';
 const entityTypesClient = new dialogflow.EntityTypesClient(CONFIGURATION);
 
+const entityOrderIdId =
+  'projects/agent/fastfood-egpp/editEntity/2b4a5a53-93ea-4dee-a7fc-478ec440f19a';
+
 @Injectable()
 export class ChatbotService {
   constructor(
@@ -98,6 +101,58 @@ export class ChatbotService {
         value: newEntityValue,
         synonyms: synonyms,
       });
+
+      const updateEntityRequest = {
+        entityType: entityType,
+      };
+
+      await entityTypesClient.updateEntityType(updateEntityRequest);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+  async updateEntityOrderId(orderId: string) {
+    try {
+      const [entityType] = await entityTypesClient.getEntityType({
+        name: entityOrderIdId,
+      });
+
+      const newEntityValue = orderId;
+
+      const existingValues = entityType.entities.map((entity) => entity.value);
+      if (existingValues.includes(newEntityValue)) {
+        return;
+      }
+
+      entityType.entities.push({
+        value: newEntityValue,
+        synonyms: [orderId],
+      });
+
+      const updateEntityRequest = {
+        entityType: entityType,
+      };
+
+      await entityTypesClient.updateEntityType(updateEntityRequest);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+  async deleteEntityOrderId(orderId: string) {
+    try {
+      const [entityType] = await entityTypesClient.getEntityType({
+        name: entityOrderIdId,
+      });
+
+      const existingValues = entityType.entities.map((entity) => entity.value);
+
+      if (existingValues.includes(orderId)) {
+        const entityIndex = entityType.entities.findIndex(
+          (entity) => entity.value === orderId,
+        );
+
+        entityType.entities.splice(entityIndex, 1);
+      }
 
       const updateEntityRequest = {
         entityType: entityType,
