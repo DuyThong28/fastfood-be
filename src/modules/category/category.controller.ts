@@ -22,6 +22,7 @@ import { PageResponseDto } from 'src/utils/page_response.dto';
 import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
 import { UpdateCategoryDto } from './dto/update_category.dto';
 import { CategoryPageOptionsDto } from './dto/find_all_category.dto';
+import { ChatbotService } from '../chatbot/chatbot.service';
 
 const {
   CATEGORIES: {
@@ -38,12 +39,16 @@ const {
 @ApiTags(DOCUMENTATION.TAGS.CATEGORIES)
 @Controller(BASE)
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+    private readonly categoryService: CategoryService,
+    private readonly chatbotService: ChatbotService,
+  ) {}
   @Post(CREATE)
   async create(
     @Body() body: CreateCategoryDto,
   ): Promise<StandardResponse<Category>> {
     const category = await this.categoryService.create(body);
+    this.chatbotService.updateEntityCategory(body.name, [body.name]);
     const message = 'Create category successfully';
     return new StandardResponse(category, message, HttpStatusCode.CREATED);
   }
@@ -96,6 +101,7 @@ export class CategoryController {
   ) {
     const category = await this.categoryService.update(id, dto);
     const message = 'Update category successfully';
+    this.chatbotService.updateEntityCategory(dto.name, [dto.name]);
     return new StandardResponse(category, message, HttpStatusCode.OK);
   }
   @Post(ENABLE)

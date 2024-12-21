@@ -76,6 +76,15 @@ export class ChatbotService {
         return { response, data };
       }
 
+      if (result.fulfillmentText.substring(0, 7) === 'OrderId') {
+        const orderId = result.fulfillmentText.substring(9);
+        const response = 'Chào bạn! Cảm ơn bạn đã đặt hàng tại Foodzy.';
+        const data = await this.prismaService.orders.findUnique({
+          where: { id: orderId },
+        });
+        return { response, data };
+      }
+
       const response = result.fulfillmentText;
       const data = null;
       return { response, data };

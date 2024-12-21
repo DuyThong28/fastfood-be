@@ -3,14 +3,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create_category.dto';
 import { UpdateCategoryDto } from './dto/update_category.dto';
 import { CategoryPageOptionsDto } from './dto/find_all_category.dto';
-import { ChatbotService } from '../chatbot/chatbot.service';
 
 @Injectable()
 export class CategoryService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly chatbotService: ChatbotService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
   async create(body: CreateCategoryDto) {
     const { name } = body;
     const existCategory = await this.prisma.category.findFirst({
@@ -24,7 +20,6 @@ export class CategoryService {
         name: name,
       },
     });
-    this.chatbotService.updateEntityCategory(name, [name]);
     return newCategory;
   }
   async getCategoryById(id: string) {
@@ -47,9 +42,6 @@ export class CategoryService {
       where: { id: id },
       data: { name: dto?.name ? dto.name : category.name },
     });
-    if (!dto.name) {
-      this.chatbotService.updateEntityCategory(dto.name, [dto.name]);
-    }
     return updatedCategory;
   }
   async getCategories(query: CategoryPageOptionsDto, disable: boolean) {
