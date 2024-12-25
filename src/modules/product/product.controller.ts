@@ -166,6 +166,7 @@ export class ProductsController {
     description: 'Allow admin/ customer',
   })
   @Get(GET_ONE)
+  @Public()
   async getProductDetailsById(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<StandardResponse<Products>> {
