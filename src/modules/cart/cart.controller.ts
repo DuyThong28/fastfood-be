@@ -26,6 +26,7 @@ import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
 import { AddToCartDto } from './dto/add_to_cart.dto';
 import { UpdateCartDto } from './dto/update_cart.dto';
 import { CheckOutDto } from './dto/check_out.dto';
+import { ChatbotService } from '../chatbot/chatbot.service';
 
 const {
   CARTS: {
@@ -42,7 +43,10 @@ const {
 @Controller(BASE)
 @ApiTags(DOCUMENTATION.TAGS.CARTS)
 export class CartController {
-  constructor(private readonly cartService: CartsService) {}
+  constructor(
+    private readonly cartService: CartsService,
+    private readonly chatbotService: ChatbotService,
+  ) {}
   @Post(CREATE)
   async createCart(
     @UserSession() session: TUserSession,
@@ -98,6 +102,7 @@ export class CartController {
     @Body() dto: CheckOutDto,
   ) {
     const result = await this.cartService.checkoutCart(session, dto);
+    this.chatbotService.updateEntityOrderId(result.id);
     return result;
   }
 }

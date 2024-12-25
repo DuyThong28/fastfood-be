@@ -33,6 +33,7 @@ export enum GENDER {
 }
 
 export enum ReviewState {
-  UNANSWERED = 'UNANSWERED',
-  ANSWERED = 'ANSWERED',
+  UNREVIEW = 'UNREVIEW',
+  REVIEWED = 'REVIEWED',
+  REPLIED = 'REPLIED',
 }

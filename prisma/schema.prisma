@@ -90,6 +90,7 @@ model Orders {
   user_id      String
   user         Users        @relation(fields: [user_id], references: [id])
   status       OrderStatus  @default(PENDING)
+  review_state ReviewState  @default(UNREVIEW)
   total_price  Decimal      @default(0)
   full_name    String
   phone_number String
@@ -97,18 +98,20 @@ model Orders {
   created_at   DateTime     @default(now())
   updated_at   DateTime     @updatedAt
   OrderItems   OrderItems[]
-  Reviews      Reviews[]
 }
 
 model OrderItems {
-  id          String   @id @default(uuid())
-  order_id    String
-  order       Orders   @relation(fields: [order_id], references: [id])
-  product_id  String
-  product     Products @relation(fields: [product_id], references: [id])
-  quantity    Int
-  price       Decimal
-  total_price Decimal
+  id            String      @id @default(uuid())
+  order_id      String
+  order         Orders      @relation(fields: [order_id], references: [id])
+  product_id    String
+  product       Products    @relation(fields: [product_id], references: [id])
+  quantity      Int
+  price         Decimal
+  total_price   Decimal
+  review_status ReviewState @default(UNREVIEW)
+  review_id     Int?
+  review        Reviews?
 }
 
 model Carts {
@@ -135,15 +138,15 @@ model Reviews {
   user            Users         @relation(fields: [user_id], references: [id])
   product_id      String
   product         Products      @relation(fields: [product_id], references: [id])
-  order_id        String
-  order           Orders        @relation(fields: [order_id], references: [id])
   title           String
   rating          Decimal
   description     String
-  state           ReviewState   @default(UNANSWERED)
+  state           ReviewState   @default(UNREVIEW)
   reply_review_id Int?
   created_at      DateTime      @default(now())
   ReplyReviews    ReplyReviews?
+  order_item_id   String        @unique
+  OrderItem       OrderItems    @relation(fields: [order_item_id], references: [id])
 }
 
 model ReplyReviews {
@@ -155,11 +158,21 @@ model ReplyReviews {
 }
 
 model Address {
-  id      Int    @id @default(autoincrement())
-  user_id String
-  lon     Float
-  lat     Float
-  Users   Users? @relation(fields: [user_id], references: [id])
+  id           Int    @id @default(autoincrement())
+  user_id      String
+  full_name    String
+  phone_number String
+  address      String
+  Users        Users? @relation(fields: [user_id], references: [id])
+}
+
+model Statistic {
+  id              String        @id    
+  day             Int
+  month           Int          
+  year            Int
+  total_order     Int
+  total_revenue   Decimal
 }
 
 enum Role {
@@ -189,6 +202,7 @@ enum ProductStatus {
 }
 
 enum ReviewState {
-  UNANSWERED
-  ANSWERED
+  UNREVIEW
+  REVIEWED
+  REPLIED
 }

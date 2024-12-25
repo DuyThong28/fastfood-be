@@ -25,6 +25,7 @@ import HttpStatusCode from 'src/constants/http_status_code';
 import { CreateOrderDto } from './dto/create_order.dto';
 import { CreateReviewDto } from './dto/create_review.dto';
 import { UpdateOrderStatusDto } from './dto/update_order_status.dto';
+import { ChatbotService } from '../chatbot/chatbot.service';
 
 const {
   ORDER: {
@@ -41,7 +42,10 @@ const {
 
 @Controller(BASE)
 export class OrdersController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly chatbotService: ChatbotService,
+  ) {}
   @Get(GET_FULL_LIST)
   @Roles(ROLE.ADMIN)
   async getListOrders(
@@ -76,6 +80,7 @@ export class OrdersController {
   ) {
     const order = await this.orderService.createOrder(session, dto);
     const message = 'Order created successfully';
+    this.chatbotService.updateEntityOrderId(order.id);
     return new StandardResponse<Orders>(order, message, HttpStatusCode.CREATED);
   }
   @Post(UPDATE_STATUS)
@@ -102,13 +107,13 @@ export class OrdersController {
     const message = 'Order details retrieved successfully';
     return new StandardResponse<Orders>(order, message, HttpStatusCode.OK);
   }
-  @Post(`${GET_ONE}/order-details/:orderDetailsId/:bookId`)
+  @Post(`${GET_ONE}/order-details/:orderDetailsId/:productId`)
   async createReview(
     @UserSession() session: TUserSession,
     @Body() dto: CreateReviewDto,
     @Param('id', ParseUUIDPipe) id: string,
     @Param('orderDetailsId', ParseUUIDPipe) orderDetailsId: string,
-    @Param('bookId', ParseUUIDPipe) bookId: string,
+    @Param('productId', ParseUUIDPipe) productId: string,
   ): Promise<StandardResponse<Reviews>> {
     console.log(dto);
     const review = await this.orderService.createReview(
@@ -116,7 +121,7 @@ export class OrdersController {
       dto,
       id,
       orderDetailsId,
-      bookId,
+      productId,
     );
     const message = 'Comment created successfully';
     return new StandardResponse(review, message, HttpStatusCode.CREATED);
