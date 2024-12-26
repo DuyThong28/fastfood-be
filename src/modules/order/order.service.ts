@@ -11,10 +11,14 @@ import { CreateOrderDto } from './dto/create_order.dto';
 import { CreateReviewDto } from './dto/create_review.dto';
 import { ORDER_STATUS } from 'src/constants/enum';
 import { UpdateOrderStatusDto } from './dto/update_order_status.dto';
+import { StatisticService } from '../statistic/statistic.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly statisticService: StatisticService,
+  ) {}
   async createOrder(session: TUserSession, dto: CreateOrderDto) {
     const productIds = dto.items.map((item) => item.productId);
     const products = await this.prisma.products.findMany({
@@ -210,6 +214,11 @@ export class OrderService {
         throw new BadRequestException('Failed to update order status');
       }
     }
+
+    if (dto.status === ORDER_STATUS.SUCCESS) {
+      this.statisticService.createStatistic(order.total_price);
+    }
+
     return await this.prisma.orders.update({
       where: { id },
       data: { status: dto.status },
