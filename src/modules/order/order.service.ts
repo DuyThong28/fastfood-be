@@ -210,6 +210,7 @@ export class OrderService {
         throw new BadRequestException('Failed to update order status');
       }
     }
+
     return await this.prisma.orders.update({
       where: { id },
       data: { status: dto.status },
