@@ -47,15 +47,6 @@ export class CreateProductDto {
   price: string;
 
   @ApiProperty({
-    description: 'The number of products in stock',
-    required: true,
-    example: 10,
-  })
-  @IsString()
-  @IsNotEmpty({ message: 'stockQuantity is required' })
-  stockQuantity: string;
-
-  @ApiProperty({
     description: 'The description of a product',
     required: true,
     example: 'This is a great product',

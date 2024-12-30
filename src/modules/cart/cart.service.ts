@@ -71,10 +71,7 @@ export class CartsService {
       await this.prisma.cartItems.update({
         where: { id: existingCartItem.id },
         data: {
-          quantity:
-            existingCartItem.quantity + quantity < product.stock_quantity
-              ? existingCartItem.quantity + quantity
-              : product.stock_quantity,
+          quantity: existingCartItem.quantity + quantity,
         },
       });
     } else {
@@ -82,10 +79,7 @@ export class CartsService {
         data: {
           product_id: productId,
           cart_id: cart.id,
-          quantity:
-            quantity < product.stock_quantity
-              ? quantity
-              : product.stock_quantity,
+          quantity: quantity,
         },
       });
     }
@@ -156,10 +150,7 @@ export class CartsService {
           id: cartItem.id,
         },
         data: {
-          quantity:
-            quantity < product.stock_quantity
-              ? quantity
-              : product.stock_quantity,
+          quantity: quantity,
         },
       });
       const updateCart = await tx.carts.findUnique({

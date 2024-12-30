@@ -82,15 +82,7 @@ export class ProductsService {
     body: CreateProductDto,
     images?: Array<Express.Multer.File>,
   ) {
-    const {
-      title,
-      author,
-      categoryId,
-      entryPrice,
-      price,
-      stockQuantity,
-      description,
-    } = body;
+    const { title, author, categoryId, entryPrice, price, description } = body;
     const category = await this.prismaService.category.findFirst({
       where: { id: categoryId },
     });
@@ -116,7 +108,6 @@ export class ProductsService {
           Category: { connect: { id: categoryId } },
           entry_price: entryPrice,
           price,
-          stock_quantity: parseInt(stockQuantity, 10),
           description,
           image_url: imageUrls,
         },

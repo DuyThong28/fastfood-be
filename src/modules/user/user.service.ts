@@ -170,22 +170,37 @@ export class UsersService {
     });
     return { users, itemCount };
   }
-  async updateUserByAdmin(body: UpdateUserProfileByAdmin) {
+  async updateUserByAdmin(
+    body: UpdateUserProfileByAdmin,
+    image?: Express.Multer.File,
+  ) {
     const user = await this.prisma.users.findUnique({ where: { id: body.id } });
     if (!user) {
       throw new BadRequestException('User not found', {
         cause: new Error('User not found'),
       });
     }
-    const { birthday, fullName, ...data } = body;
-    const updatedUser = await this.prisma.users.update({
-      where: { id: body.id },
-      data: {
-        full_name: fullName ?? user.full_name,
-        birthday: birthday ? new Date(birthday) : user.birthday,
-        ...data,
-      },
-    });
-    return updatedUser;
+    let imageUrls = [];
+    if (image && image.buffer.byteLength > 0) {
+      const uploadImagesData = await uploadFilesFromFirebase(
+        [image],
+        EUploadFolder.user,
+      );
+      if (!uploadImagesData.success) {
+        throw new Error('Failed to upload images!');
+      }
+      imageUrls = uploadImagesData.urls;
+      const { birthday, fullName, ...data } = body;
+      const updatedUser = await this.prisma.users.update({
+        where: { id: body.id },
+        data: {
+          full_name: fullName ?? user.full_name,
+          birthday: birthday ? new Date(birthday) : user.birthday,
+          ...data,
+          avatar_url: image ? imageUrls[0] : user.avatar_url,
+        },
+      });
+      return updatedUser;
+    }
   }
 }
