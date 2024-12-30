@@ -50,7 +50,6 @@ model Products {
   author             String
   category_id        String
   price              Decimal
-  stock_quantity     Int
   description        String        @db.Text
   entry_price        Decimal
   final_price        Decimal?
@@ -167,12 +166,12 @@ model Address {
 }
 
 model Statistic {
-  id              String        @id    
-  day             Int
-  month           Int          
-  year            Int
-  total_order     Int
-  total_revenue   Decimal
+  id            String  @id
+  day           Int
+  month         Int
+  year          Int
+  total_order   Int
+  total_revenue Decimal
 }
 
 enum Role {

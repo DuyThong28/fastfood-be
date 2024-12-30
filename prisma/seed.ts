@@ -87,7 +87,6 @@ async function main() {
         description: faker.lorem.sentence(),
         entry_price: faker.number.int({ min: 800000, max: 850000 }),
         price: faker.number.int({ min: 900000, max: 1000000 }),
-        stock_quantity: faker.number.int({ min: 10000, max: 1000000 }),
         Category: {
           connect: {
             id: category_ids[

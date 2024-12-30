@@ -151,6 +151,7 @@ export class UsersController {
     return new PageResponseDto(users, meta);
   }
   @Put(UPDATE_BY_ADMIN)
+  @UseInterceptors(FileInterceptor('avatar_url'))
   async updateUserByAdmin(@Body() dto: UpdateUserProfileByAdmin) {
     const user = await this.userService.updateUserByAdmin(dto);
     return new StandardResponse(
