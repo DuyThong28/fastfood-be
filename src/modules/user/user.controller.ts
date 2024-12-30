@@ -152,8 +152,20 @@ export class UsersController {
   }
   @Put(UPDATE_BY_ADMIN)
   @UseInterceptors(FileInterceptor('avatar_url'))
-  async updateUserByAdmin(@Body() dto: UpdateUserProfileByAdmin) {
-    const user = await this.userService.updateUserByAdmin(dto);
+  async updateUserByAdmin(
+    @Body() dto: UpdateUserProfileByAdmin,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: FILE_TYPES_REGEX,
+        })
+        .build({
+          fileIsRequired: false,
+        }),
+    )
+    image?: Express.Multer.File,
+  ) {
+    const user = await this.userService.updateUserByAdmin(dto, image);
     return new StandardResponse(
       user,
       'Update user by admin successfully',
