@@ -17,7 +17,7 @@ export class ProductsService {
     const products = await this.prismaService.products.findMany({
       where: {
         title: {
-          contains: productQuery.title,
+          contains: productQuery.title ? productQuery.title : undefined,
           mode: 'insensitive',
         },
         Category: {
@@ -52,7 +52,7 @@ export class ProductsService {
     const itemCount = await this.prismaService.products.count({
       where: {
         title: {
-          contains: productQuery.title,
+          contains: productQuery.title ? productQuery.title : undefined,
           mode: 'insensitive',
         },
         Category: {
@@ -224,20 +224,10 @@ export class ProductsService {
   async searchProduct(query: string, productQuery: ProductQuery) {
     const products = await this.prismaService.products.findMany({
       where: {
-        OR: [
-          {
-            title: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-          {
-            author: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-        ],
+        title: {
+          contains: query ? query : undefined,
+          mode: 'insensitive',
+        },
         ...(productQuery.status && { status: productQuery.status }),
       },
       take: productQuery.take,
@@ -246,20 +236,10 @@ export class ProductsService {
     });
     const itemCount = await this.prismaService.products.count({
       where: {
-        OR: [
-          {
-            title: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-          {
-            author: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-        ],
+        title: {
+          contains: query,
+          mode: 'insensitive',
+        },
       },
     });
     return { products, itemCount };
