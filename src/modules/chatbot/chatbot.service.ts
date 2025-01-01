@@ -74,7 +74,7 @@ export class ChatbotService {
           },
         });
 
-        if (!data) {
+        if (data.length == 0) {
           const response =
             'Cảm ơn bạn đã quan tâm đến sản phẩm của chúng mình. Hiện tại, sản phẩm mà bạn đang tìm kiếm không có sẵn. Chúng mình rất tiếc vì sự bất tiện này.';
           return { response, data };
