@@ -82,7 +82,7 @@ export class ProductsService {
     body: CreateProductDto,
     images?: Array<Express.Multer.File>,
   ) {
-    const { title, author, categoryId, price, description } = body;
+    const { title, categoryId, price, description } = body;
     const category = await this.prismaService.category.findFirst({
       where: { id: categoryId },
     });
