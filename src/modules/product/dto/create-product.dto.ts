@@ -17,9 +17,6 @@ export class CreateProductDto {
     required: true,
     example: 'Haruki Murakami',
   })
-  @IsNotEmpty({ message: 'author is required' })
-  author: string;
-
   @ApiProperty({
     description: 'The category id of a product',
     required: true,
@@ -27,7 +24,6 @@ export class CreateProductDto {
   })
   @IsNotEmpty({ message: 'categoryId is required' })
   categoryId: string;
-  
   @ApiProperty({
     description: 'The sale price of a product',
     required: true,
