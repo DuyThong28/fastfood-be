@@ -66,17 +66,6 @@ export class OrderService {
           };
         });
         await tx.orderItems.createMany({ data: orderItems });
-        await Promise.all(
-          orderItems.map((item) =>
-            tx.products.update({
-              where: { id: item.product_id },
-              data: {
-                stock_quantity: { decrement: item.quantity },
-                sold_quantity: { increment: item.quantity },
-              },
-            }),
-          ),
-        );
         const totalPrice = orderItems.reduce(
           (acc, item) => acc + item.total_price,
           0,
@@ -210,6 +199,7 @@ export class OrderService {
         throw new BadRequestException('Failed to update order status');
       }
     }
+
     return await this.prisma.orders.update({
       where: { id },
       data: { status: dto.status },
@@ -316,14 +306,6 @@ export class OrderService {
         await tx.orders.update({
           where: { id },
           data: { status: ORDER_STATUS.CANCELLED as OrderStatus },
-        });
-        bookIds.forEach(async (item) => {
-          await tx.products.update({
-            where: { id: item.id },
-            data: {
-              stock_quantity: { increment: item.quantity },
-            },
-          });
         });
         return await tx.orders.findUnique({
           where: { id },

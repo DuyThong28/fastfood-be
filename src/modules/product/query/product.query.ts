@@ -5,7 +5,7 @@ import { PageOptionsDto } from 'src/utils/page_option.dto';
 
 export class ProductQuery extends PageOptionsDto {
   @ApiProperty({
-    description: 'Book title',
+    description: 'Product title',
     required: false,
   })
   @IsOptional()
@@ -13,7 +13,7 @@ export class ProductQuery extends PageOptionsDto {
   title?: string;
 
   @ApiProperty({
-    description: 'Book author name',
+    description: 'Product author name',
     required: false,
   })
   @IsOptional()
@@ -21,7 +21,7 @@ export class ProductQuery extends PageOptionsDto {
   author?: string;
 
   @ApiProperty({
-    description: 'Book category name',
+    description: 'Product category name',
     required: false,
   })
   @IsOptional()
@@ -29,7 +29,7 @@ export class ProductQuery extends PageOptionsDto {
   categoryId?: string;
 
   @ApiProperty({
-    description: 'Book status',
+    description: 'Product status',
     enum: BOOKSTATUS,
     required: false,
   })

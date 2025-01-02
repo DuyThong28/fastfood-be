@@ -27,16 +27,7 @@ export class CreateProductDto {
   })
   @IsNotEmpty({ message: 'categoryId is required' })
   categoryId: string;
-
-  @ApiProperty({
-    description: 'The entry price of a product',
-    required: true,
-    example: '100000',
-  })
-  @IsString()
-  @IsNotEmpty({ message: 'entryPrice is required' })
-  entryPrice: string;
-
+  
   @ApiProperty({
     description: 'The sale price of a product',
     required: true,
@@ -45,15 +36,6 @@ export class CreateProductDto {
   @IsString()
   @IsNotEmpty({ message: 'price is required' })
   price: string;
-
-  @ApiProperty({
-    description: 'The number of products in stock',
-    required: true,
-    example: 10,
-  })
-  @IsString()
-  @IsNotEmpty({ message: 'stockQuantity is required' })
-  stockQuantity: string;
 
   @ApiProperty({
     description: 'The description of a product',

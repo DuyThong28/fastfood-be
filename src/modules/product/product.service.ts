@@ -17,7 +17,7 @@ export class ProductsService {
     const products = await this.prismaService.products.findMany({
       where: {
         title: {
-          contains: productQuery.title,
+          contains: productQuery.title ? productQuery.title : undefined,
           mode: 'insensitive',
         },
         Category: {
@@ -52,7 +52,7 @@ export class ProductsService {
     const itemCount = await this.prismaService.products.count({
       where: {
         title: {
-          contains: productQuery.title,
+          contains: productQuery.title ? productQuery.title : undefined,
           mode: 'insensitive',
         },
         Category: {
@@ -82,15 +82,7 @@ export class ProductsService {
     body: CreateProductDto,
     images?: Array<Express.Multer.File>,
   ) {
-    const {
-      title,
-      author,
-      categoryId,
-      entryPrice,
-      price,
-      stockQuantity,
-      description,
-    } = body;
+    const { title, author, categoryId, price, description } = body;
     const category = await this.prismaService.category.findFirst({
       where: { id: categoryId },
     });
@@ -112,11 +104,8 @@ export class ProductsService {
       const newProduct = await this.prismaService.products.create({
         data: {
           title: title,
-          author: author,
           Category: { connect: { id: categoryId } },
-          entry_price: entryPrice,
           price,
-          stock_quantity: parseInt(stockQuantity, 10),
           description,
           image_url: imageUrls,
         },
@@ -240,12 +229,6 @@ export class ProductsService {
               mode: 'insensitive',
             },
           },
-          {
-            author: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
         ],
         ...(productQuery.status && { status: productQuery.status }),
       },
@@ -258,12 +241,6 @@ export class ProductsService {
         OR: [
           {
             title: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-          {
-            author: {
               contains: query,
               mode: 'insensitive',
             },

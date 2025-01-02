@@ -47,12 +47,9 @@ model Vertifications {
 model Products {
   id                 String        @id @default(uuid())
   title              String        @db.VarChar(255)
-  author             String
   category_id        String
   price              Decimal
-  stock_quantity     Int
   description        String        @db.Text
-  entry_price        Decimal
   final_price        Decimal?
   discountPercentage Int?
   discountDate       DateTime?
@@ -74,15 +71,6 @@ model Category {
   name       String     @unique
   is_disable Boolean    @default(false)
   Products   Products[]
-}
-
-model Authors {
-  id          String   @id @default(uuid())
-  name        String   @db.VarChar(255)
-  birthday    DateTime
-  description String
-
-  @@unique([name, birthday, description])
 }
 
 model Orders {
@@ -167,12 +155,12 @@ model Address {
 }
 
 model Statistic {
-  id              String        @id    
-  day             Int
-  month           Int          
-  year            Int
-  total_order     Int
-  total_revenue   Decimal
+  id            String  @id
+  day           Int
+  month         Int
+  year          Int
+  total_order   Int
+  total_revenue Decimal
 }
 
 enum Role {

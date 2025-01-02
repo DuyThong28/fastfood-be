@@ -73,15 +73,27 @@ export class ChatbotService {
             },
           },
         });
+
+        if (data.length == 0) {
+          const response =
+            'Cảm ơn bạn đã quan tâm đến sản phẩm của chúng mình. Hiện tại, sản phẩm mà bạn đang tìm kiếm không có sẵn. Chúng mình rất tiếc vì sự bất tiện này.';
+          return { response, data };
+        }
         return { response, data };
       }
 
       if (result.fulfillmentText.substring(0, 7) === 'OrderId') {
         const orderId = result.fulfillmentText.substring(9);
-        const response = 'Chào bạn! Cảm ơn bạn đã đặt hàng tại Foodzy.';
+        let response = 'Chào bạn! Cảm ơn bạn đã đặt hàng tại Foodzy.';
+
         const data = await this.prismaService.orders.findUnique({
           where: { id: orderId },
         });
+
+        if (!data) {
+          response = 'Mã đơn hàng không tồn tại!';
+        }
+
         return { response, data };
       }
 
@@ -158,6 +170,32 @@ export class ChatbotService {
       if (existingValues.includes(orderId)) {
         const entityIndex = entityType.entities.findIndex(
           (entity) => entity.value === orderId,
+        );
+
+        entityType.entities.splice(entityIndex, 1);
+      }
+
+      const updateEntityRequest = {
+        entityType: entityType,
+      };
+
+      await entityTypesClient.updateEntityType(updateEntityRequest);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async deleteEntityCategory(category: string) {
+    try {
+      const [entityType] = await entityTypesClient.getEntityType({
+        name: entityCategoryId,
+      });
+
+      const existingValues = entityType.entities.map((entity) => entity.value);
+
+      if (existingValues.includes(category)) {
+        const entityIndex = entityType.entities.findIndex(
+          (entity) => entity.value === category,
         );
 
         entityType.entities.splice(entityIndex, 1);

@@ -4,6 +4,7 @@ import { createStatisticDto } from './dto/createStatistic.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Cron } from '@nestjs/schedule';
 import { StatisticPageOptionsDto } from './dto/getStatistics.dto';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class StatisticService {
@@ -213,5 +214,47 @@ export class StatisticService {
       },
     });
     return result;
+  }
+
+  async createStatistic(total_price: Decimal) {
+    try {
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth() + 1;
+      const year = today.getFullYear();
+
+      const statistic = await this.prismaService.statistic.findFirst({
+        where: {
+          day: day,
+          month: month,
+          year: year,
+        },
+      });
+
+      if (!statistic) {
+        await this.prismaService.statistic.create({
+          data: {
+            id: uuidv4(),
+            day: day,
+            month: month,
+            year: year,
+            total_order: 1,
+            total_revenue: total_price,
+          },
+        });
+      } else {
+        await this.prismaService.statistic.update({
+          where: {
+            id: statistic.id,
+          },
+          data: {
+            total_order: statistic.total_order + 1,
+            total_revenue: statistic.total_revenue.plus(total_price),
+          },
+        });
+      }
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
