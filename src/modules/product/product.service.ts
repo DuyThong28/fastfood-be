@@ -82,7 +82,7 @@ export class ProductsService {
     body: CreateProductDto,
     images?: Array<Express.Multer.File>,
   ) {
-    const { title, author, categoryId, entryPrice, price, description } = body;
+    const { title, categoryId, price, description } = body;
     const category = await this.prismaService.category.findFirst({
       where: { id: categoryId },
     });
@@ -104,9 +104,7 @@ export class ProductsService {
       const newProduct = await this.prismaService.products.create({
         data: {
           title: title,
-          author: author,
           Category: { connect: { id: categoryId } },
-          entry_price: entryPrice,
           price,
           description,
           image_url: imageUrls,
@@ -224,10 +222,14 @@ export class ProductsService {
   async searchProduct(query: string, productQuery: ProductQuery) {
     const products = await this.prismaService.products.findMany({
       where: {
-        title: {
-          contains: query ? query : undefined,
-          mode: 'insensitive',
-        },
+        OR: [
+          {
+            title: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        ],
         ...(productQuery.status && { status: productQuery.status }),
       },
       take: productQuery.take,
@@ -236,10 +238,14 @@ export class ProductsService {
     });
     const itemCount = await this.prismaService.products.count({
       where: {
-        title: {
-          contains: query,
-          mode: 'insensitive',
-        },
+        OR: [
+          {
+            title: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        ],
       },
     });
     return { products, itemCount };
