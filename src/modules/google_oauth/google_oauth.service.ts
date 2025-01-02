@@ -77,7 +77,7 @@ export class GoogleOauthService {
     const jwtPayload = payload;
     const access_token = await this.jwtService.signAsync(jwtPayload, {
       secret: this.configSerivce.get('jwt_access_secret'),
-      expiresIn: '300s',
+      expiresIn: '1d',
     });
     const refresh_token = await this.jwtService.signAsync(jwtPayload, {
       secret: this.configSerivce.get('jwt_refresh_secret'),
