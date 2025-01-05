@@ -16,4 +16,9 @@ export default () => ({
   jwt_oauth_access_secret: process.env.JWT_OAUTH_ACCESS_SECRET,
   default_password: process.env.DEFAULT_PASSWORD,
   success_auth_google: process.env.SUCCESS_AUTH_GOOGLE,
+  redirect_url_payment: process.env.REDIRECT_URL_PAYMENT,
+  ipn_url_momo: process.env.IPN_URL_MOMO,
+  partner_code_momo: process.env.PARTNER_CODE_MOMO,
+  access_key_momo: process.env.ACCESS_KEY_MOMO,
+  secret_key_momo: process.env.SECRET_KEY_MOMO,
 });

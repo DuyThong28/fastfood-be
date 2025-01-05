@@ -200,6 +200,7 @@ export class CartsService {
         fullName: dto.fullName,
         phoneNumber: dto.phone,
         address: dto.shippingAddress,
+        paymentMethod: dto.paymentMethod,
       });
       await this.clearCart(session);
       return order;
