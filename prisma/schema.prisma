@@ -132,6 +132,8 @@ model Reviews {
   rating          Decimal
   description     String
   state           ReviewState   @default(UNREVIEW)
+  type            ReviewType
+  is_hidden       Boolean       @default(false)
   reply_review_id Int?
   created_at      DateTime      @default(now())
   ReplyReviews    ReplyReviews?
@@ -200,4 +202,10 @@ enum ReviewState {
 enum PaymentMethod {
   CASH
   MOMO
+}
+
+enum ReviewType {
+  POSITIVE
+  NEGATIVE
+  TOXIC
 }

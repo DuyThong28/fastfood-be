@@ -21,4 +21,5 @@ export default () => ({
   partner_code_momo: process.env.PARTNER_CODE_MOMO,
   access_key_momo: process.env.ACCESS_KEY_MOMO,
   secret_key_momo: process.env.SECRET_KEY_MOMO,
+  gemini_api_key_3: process.env.GEMINI_API_KEY_3,
 });

@@ -1,12 +1,13 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TUserSession } from 'src/common/decorators/user-session.decorator';
-import { OrderStatus, ReviewState } from '@prisma/client';
+import { OrderStatus, ReviewState, ReviewType } from '@prisma/client';
 import { OrderPageOptionsDto } from './dto/find_all_order.dto';
 import { CreateOrderDto } from './dto/create_order.dto';
 import { CreateReviewDto } from './dto/create_review.dto';
@@ -17,12 +18,15 @@ import * as axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { Request, Response } from 'express';
+import { GeminiService } from '../gen_ai/gemini.service';
+import HttpStatusCode from 'src/constants/http_status_code';
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly geminiService: GeminiService,
   ) {}
   async createOrder(session: TUserSession, dto: CreateOrderDto) {
     const productIds = dto.items.map((item) => item.productId);
@@ -240,6 +244,16 @@ export class OrderService {
     if (!product) {
       throw new NotFoundException('Book not found');
     }
+    const type = await this.geminiService.analyseComment(
+      dto.title + ' ' + dto.description,
+    );
+    if (type.trim() === ReviewType.TOXIC) {
+      throw new HttpException(
+        'Your comment is toxic, please try again',
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+    const is_hidden = type.trim() === ReviewType.NEGATIVE;
     try {
       return await this.prisma.$transaction(async (tx) => {
         const newTotalReviews = product.total_reviews + 1;
@@ -254,6 +268,8 @@ export class OrderService {
             description: dto.description,
             title: dto.title,
             order_item_id: orderDetailId,
+            type: type.trim() as ReviewType,
+            is_hidden: is_hidden,
           },
           include: {
             product: true,

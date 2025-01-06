@@ -7,13 +7,14 @@ import { ReviewState } from 'src/constants/enum';
 @Injectable()
 export class ReviewsService {
   constructor(private readonly prisma: PrismaService) {}
-  async getAllReviews(dto: GetReviewsDto) {
+  async getAllReviews(dto: GetReviewsDto, isHidden?: boolean) {
     const reviews = await this.prisma.reviews.findMany({
       where: {
         ...(dto.search && { product: { title: { contains: dto.search } } }),
         ...(dto.rating && { rating: { in: dto.rating } }),
         ...(dto.date && { created_at: { equals: new Date(dto.date) } }),
         ...(dto.state && { state: dto.state }),
+        ...(isHidden !== undefined && { is_hidden: isHidden }),
       },
       include: {
         product: true,
@@ -139,6 +140,7 @@ export class ReviewsService {
         ...(query.rating && { rating: { in: query.rating } }),
         ...(query.date && { created_at: { equals: new Date(query.date) } }),
         ...(query.state && { state: query.state }),
+        is_hidden: false,
       },
       include: {
         product: true,
@@ -195,5 +197,37 @@ export class ReviewsService {
       },
     });
     return { reviews, itemCount };
+  }
+  async hideReview(id: number) {
+    try {
+      const review = await this.prisma.reviews.update({
+        where: {
+          id: id,
+        },
+        data: {
+          is_hidden: true,
+        },
+      });
+      return review;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Failed to hide review');
+    }
+  }
+  async showReview(id: number) {
+    try {
+      const review = await this.prisma.reviews.update({
+        where: {
+          id: id,
+        },
+        data: {
+          is_hidden: false,
+        },
+      });
+      return review;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Failed to show review');
+    }
   }
 }
