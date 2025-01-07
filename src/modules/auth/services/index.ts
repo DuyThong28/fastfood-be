@@ -1,7 +1,6 @@
-export { default as SignUpService } from './signup';
-export { default as SignInService } from './signin';
-export { default as SignUpByEmailService } from './signup';
-export { default as VerificationEmailService } from './verification';
-export { default as SignOutService } from './signout';
-export { default as RefreshTokenService } from './refreshtoken';
-export { default as ForgotPwdService } from './forgotpwd';
+export { default as SignUpService } from './signup/index';
+export { default as SignInService } from './signin/index';
+export { default as VerificationEmailService } from './verification/index';
+export { default as SignOutService } from './signout/index';
+export { default as RefreshTokenService } from './refreshtoken/index';
+export { default as ForgotPwdService } from './forgotpwd/index';
