@@ -4,9 +4,17 @@ import { OrdersController } from './order.controller';
 import { OrderService } from './order.service';
 import { ChatbotModule } from '../chatbot/chatbot.module';
 import { StatisticModule } from '../statistic/statistic.module';
+import { ConfigModule } from '@nestjs/config';
+import { GeminiModule } from '../gen_ai/gemini.module';
 
 @Module({
-  imports: [PrismaModule, ChatbotModule, StatisticModule],
+  imports: [
+    PrismaModule,
+    ChatbotModule,
+    StatisticModule,
+    ConfigModule,
+    GeminiModule,
+  ],
   providers: [OrderService],
   controllers: [OrdersController],
   exports: [OrderService],

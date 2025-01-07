@@ -90,6 +90,8 @@ export const END_POINTS = {
     GET_ONE: '/get-details/:id',
     CANCEL_ORDER: '/:id/cancel-order',
     GET_ONE_BY_ADMIN: '/get-details-by-admin/:id',
+    CREATE_ORDER_PAYMENT_URL_WITH_MOMO: '/create-order-payment-url-with-momo',
+    CALLBACK_WITH_MOMO: '/callback-with-momo',
   },
   ORDER_DETAILS: {
     BASE: '/order-details',

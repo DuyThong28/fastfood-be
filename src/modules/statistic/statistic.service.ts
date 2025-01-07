@@ -127,22 +127,47 @@ export class StatisticService {
     }
   }
   async getStatistics(query: StatisticPageOptionsDto) {
-    const { take, sortBy1, sortBy2, sortBy3, order, skip } = query;
-    const statistics = await this.prismaService.statistic.findMany({
-      where: {
-        day: query.day === 0 ? undefined : query.day,
-        month: query.month === 0 ? undefined : query.month,
-        year: query.year === 0 ? undefined : query.year,
-      },
-      skip: skip,
-      take: take,
-      orderBy: [
-        { [sortBy1]: order },
-        { [sortBy2]: order },
-        { [sortBy3]: order },
-      ],
-    });
-    const itemCount = await this.prismaService.statistic.count();
+    const { take, skip } = query;
+
+    let statistics, itemCount;
+
+    if (!query.day && !query.month) {
+      statistics = await this.prismaService.statistic.groupBy({
+        by: ['year', 'month'],
+        _sum: { total_revenue: true, total_order: true },
+        where: {
+          year: query.year ? query.year : undefined,
+        },
+        orderBy: [{ year: 'desc' }, { month: 'desc' }],
+        take: take,
+        skip: skip,
+      });
+      itemCount = await this.prismaService.statistic.groupBy({
+        by: ['year', 'month'],
+        where: {
+          year: query.year ? query.year : undefined,
+        },
+      });
+      itemCount = itemCount.length;
+    } else {
+      statistics = await this.prismaService.statistic.findMany({
+        where: {
+          day: query.day ? query.day : undefined,
+          month: query.month ? query.month : undefined,
+          year: query.year ? query.year : undefined,
+        },
+        orderBy: [{ year: 'desc' }, { month: 'desc' }, { day: 'desc' }],
+        take: take,
+        skip: skip,
+      });
+      itemCount = await this.prismaService.statistic.count({
+        where: {
+          day: query.day ? query.day : undefined,
+          month: query.month ? query.month : undefined,
+          year: query.year ? query.year : undefined,
+        },
+      });
+    }
     return { statistics, itemCount };
   }
   async getBestSellerProduct() {

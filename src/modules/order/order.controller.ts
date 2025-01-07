@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  Res,
 } from '@nestjs/common';
 import {
   TUserSession,
@@ -28,6 +30,9 @@ import { UpdateOrderStatusDto } from './dto/update_order_status.dto';
 import { ChatbotService } from '../chatbot/chatbot.service';
 import { StatisticService } from '../statistic/statistic.service';
 import { ORDER_STATUS } from 'src/constants/enum';
+import { CreatePaymentUrlDto } from './dto/create_order_payment_url.dto';
+import { Public } from 'src/common/decorators/public.decorator';
+import { Request, Response } from 'express';
 
 const {
   ORDER: {
@@ -39,6 +44,8 @@ const {
     GET_ONE,
     CANCEL_ORDER,
     GET_ONE_BY_ADMIN,
+    CREATE_ORDER_PAYMENT_URL_WITH_MOMO,
+    CALLBACK_WITH_MOMO,
   },
 } = END_POINTS;
 
@@ -142,5 +149,24 @@ export class OrdersController {
     const order = await this.orderService.cancelOrder(id, session);
     const message = 'Order cancelled successfully';
     return new StandardResponse(order, message, HttpStatusCode.OK);
+  }
+
+  @Public()
+  @Post(CREATE_ORDER_PAYMENT_URL_WITH_MOMO)
+  async createOrderPaymentUrlWithMomo(@Body() body: CreatePaymentUrlDto) {
+    const orderPaymentUrl =
+      await this.orderService.createOrderPaymentUrlWithMomo(body);
+    const message = 'Order payment url created successfully';
+    return new StandardResponse(
+      orderPaymentUrl,
+      message,
+      HttpStatusCode.CREATED,
+    );
+  }
+
+  @Public()
+  @Post(CALLBACK_WITH_MOMO)
+  async callbackWithVNPay(@Req() req: Request, @Res() res: Response) {
+    await this.orderService.callbackWithMomo(req, res);
   }
 }

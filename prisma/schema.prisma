@@ -74,18 +74,20 @@ model Category {
 }
 
 model Orders {
-  id           String       @id @default(uuid())
-  user_id      String
-  user         Users        @relation(fields: [user_id], references: [id])
-  status       OrderStatus  @default(PENDING)
-  review_state ReviewState  @default(UNREVIEW)
-  total_price  Decimal      @default(0)
-  full_name    String
-  phone_number String
-  address      String
-  created_at   DateTime     @default(now())
-  updated_at   DateTime     @updatedAt
-  OrderItems   OrderItems[]
+  id             String        @id @default(uuid())
+  user_id        String
+  user           Users         @relation(fields: [user_id], references: [id])
+  status         OrderStatus   @default(PENDING)
+  review_state   ReviewState   @default(UNREVIEW)
+  total_price    Decimal       @default(0)
+  full_name      String
+  phone_number   String
+  payment_method PaymentMethod
+  payment_url    String?
+  address        String
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  OrderItems     OrderItems[]
 }
 
 model OrderItems {
@@ -130,6 +132,8 @@ model Reviews {
   rating          Decimal
   description     String
   state           ReviewState   @default(UNREVIEW)
+  type            ReviewType
+  is_hidden       Boolean       @default(false)
   reply_review_id Int?
   created_at      DateTime      @default(now())
   ReplyReviews    ReplyReviews?
@@ -193,4 +197,15 @@ enum ReviewState {
   UNREVIEW
   REVIEWED
   REPLIED
+}
+
+enum PaymentMethod {
+  CASH
+  MOMO
+}
+
+enum ReviewType {
+  POSITIVE
+  NEGATIVE
+  TOXIC
 }

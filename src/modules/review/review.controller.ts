@@ -37,9 +37,12 @@ export class ReviewsController {
   @Get(GET_ALL)
   async getAll(
     @Query() query: GetReviewsDto,
+    @Query('isHidden') isHidden?: boolean,
   ): Promise<PageResponseDto<Reviews>> {
-    const { reviews, itemCount } =
-      await this.reviewService.getAllReviews(query);
+    const { reviews, itemCount } = await this.reviewService.getAllReviews(
+      query,
+      isHidden,
+    );
     const pageResponseMetaDto = new PageResponseMetaDto({
       pageOptionsDto: query,
       itemCount: itemCount,
@@ -63,7 +66,7 @@ export class ReviewsController {
     );
   }
   @Get(GET_REVIEW_BY_PRODUCT_ID)
-  async getReviewByBookId(
+  async getReviewByProductId(
     @Param('productId') productId: string,
     @Query() query: GetReviewsDto,
   ) {
@@ -89,5 +92,23 @@ export class ReviewsController {
       itemCount: itemCount,
     });
     return new PageResponseDto(reviews, pageResponseMetaDto);
+  }
+  @Post('hide/:id')
+  async hideReview(@Param('id', ParseIntPipe) id: number) {
+    const review = await this.reviewService.hideReview(id);
+    return new StandardResponse(
+      review,
+      'Hide review successfully',
+      HttpStatusCode.OK,
+    );
+  }
+  @Post('unhide/:id')
+  async unhideReview(@Param('id', ParseIntPipe) id: number) {
+    const review = await this.reviewService.showReview(id);
+    return new StandardResponse(
+      review,
+      'Unhide review successfully',
+      HttpStatusCode.OK,
+    );
   }
 }
