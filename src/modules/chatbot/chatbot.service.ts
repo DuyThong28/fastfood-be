@@ -24,12 +24,16 @@ const entityTypesClient = new dialogflow.EntityTypesClient(CONFIGURATION);
 const entityOrderIdId =
   'projects/fastfood-egpp/agent/entityTypes/2b4a5a53-93ea-4dee-a7fc-478ec440f19a';
 
+const entityProductTitleId =
+  'projects/fastfood-egpp/agent/entityTypes/32471da4-a180-44f1-b157-5d15705479fd';
+
 @Injectable()
 export class ChatbotService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly statisticService: StatisticService,
   ) {}
+
   async chatbot(requestMessageDto: requestMessageDto) {
     try {
       const message = requestMessageDto.message;
@@ -63,9 +67,9 @@ export class ChatbotService {
       if (result.fulfillmentText.substring(0, 8) === 'Category') {
         const category = result.fulfillmentText.substring(10);
         const response = `Chào bạn! FoodzyBot sẽ gợi ý cho bạn một số ${category} hot nhất nhé!`;
+
         const data = await this.prismaService.products.findMany({
           orderBy: [{ sold_quantity: 'desc' }],
-          take: 5,
           where: {
             status: 'ACTIVE',
             Category: {
@@ -79,6 +83,31 @@ export class ChatbotService {
             'Cảm ơn bạn đã quan tâm đến sản phẩm của chúng mình. Hiện tại, sản phẩm mà bạn đang tìm kiếm không có sẵn. Chúng mình rất tiếc vì sự bất tiện này.';
           return { response, data };
         }
+
+        return { response, data };
+      }
+
+      if (result.fulfillmentText.substring(0, 7) === 'Product') {
+        const title = result.fulfillmentText.substring(9);
+        const response = `Chào bạn! Danh sách sản phẩm phù hợp với từ khóa tìm kiếm của bạn là`;
+
+        const data = await this.prismaService.products.findMany({
+          orderBy: [{ sold_quantity: 'desc' }],
+          where: {
+            status: 'ACTIVE',
+            title: {
+              contains: title ? title : undefined,
+              mode: 'insensitive',
+            },
+          },
+        });
+
+        if (data.length == 0) {
+          const response =
+            'Cảm ơn bạn đã quan tâm đến sản phẩm của chúng mình. Hiện tại, sản phẩm mà bạn đang tìm kiếm không có sẵn. Chúng mình rất tiếc vì sự bất tiện này.';
+          return { response, data };
+        }
+
         return { response, data };
       }
 
@@ -132,6 +161,7 @@ export class ChatbotService {
       throw new Error(err.message);
     }
   }
+
   async updateEntityOrderId(orderId: string) {
     try {
       const [entityType] = await entityTypesClient.getEntityType({
@@ -159,6 +189,7 @@ export class ChatbotService {
       throw new Error(err.message);
     }
   }
+
   async deleteEntityOrderId(orderId: string) {
     try {
       const [entityType] = await entityTypesClient.getEntityType({
@@ -196,6 +227,60 @@ export class ChatbotService {
       if (existingValues.includes(category)) {
         const entityIndex = entityType.entities.findIndex(
           (entity) => entity.value === category,
+        );
+
+        entityType.entities.splice(entityIndex, 1);
+      }
+
+      const updateEntityRequest = {
+        entityType: entityType,
+      };
+
+      await entityTypesClient.updateEntityType(updateEntityRequest);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async updateEntityTitle(title: string, synonyms: string[]) {
+    try {
+      const [entityType] = await entityTypesClient.getEntityType({
+        name: entityProductTitleId,
+      });
+
+      const newEntityValue = title;
+
+      const existingValues = entityType.entities.map((entity) => entity.value);
+      if (existingValues.includes(newEntityValue)) {
+        return;
+      }
+
+      entityType.entities.push({
+        value: newEntityValue,
+        synonyms: synonyms,
+      });
+
+      const updateEntityRequest = {
+        entityType: entityType,
+      };
+
+      await entityTypesClient.updateEntityType(updateEntityRequest);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async deleteEntityTitle(title: string) {
+    try {
+      const [entityType] = await entityTypesClient.getEntityType({
+        name: entityProductTitleId,
+      });
+
+      const existingValues = entityType.entities.map((entity) => entity.value);
+
+      if (existingValues.includes(title)) {
+        const entityIndex = entityType.entities.findIndex(
+          (entity) => entity.value === title,
         );
 
         entityType.entities.splice(entityIndex, 1);

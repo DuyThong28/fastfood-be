@@ -7,7 +7,7 @@ import { UpdateUserProfileDto } from './dto/update_user_profile.dto';
 import { GetAllUserDto } from './dto/get_all_user.dto';
 import { EUploadFolder, USER_IMAGE_URL } from 'src/constants/constant';
 import { uploadFilesFromFirebase } from 'src/libs/firebase/upload';
-import { hashedPassword } from '../auth/services/signup/hash-password';
+import { hashedPassword } from '../auth/services/signUp/hash-password';
 import { UpdateUserProfileByAdmin } from './dto/update_user_profile_by_admin.dto';
 
 @Injectable()
