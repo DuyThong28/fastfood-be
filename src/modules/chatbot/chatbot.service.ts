@@ -67,9 +67,9 @@ export class ChatbotService {
       if (result.fulfillmentText.substring(0, 8) === 'Category') {
         const category = result.fulfillmentText.substring(10);
         const response = `Chào bạn! FoodzyBot sẽ gợi ý cho bạn một số ${category} hot nhất nhé!`;
+
         const data = await this.prismaService.products.findMany({
           orderBy: [{ sold_quantity: 'desc' }],
-          take: 5,
           where: {
             status: 'ACTIVE',
             Category: {
@@ -83,6 +83,28 @@ export class ChatbotService {
             'Cảm ơn bạn đã quan tâm đến sản phẩm của chúng mình. Hiện tại, sản phẩm mà bạn đang tìm kiếm không có sẵn. Chúng mình rất tiếc vì sự bất tiện này.';
           return { response, data };
         }
+
+        return { response, data };
+      }
+
+      if (result.fulfillmentText.substring(0, 7) === 'Product') {
+        const title = result.fulfillmentText.substring(9);
+        const response = `Chào bạn! Danh sách sản phẩm phù hợp với từ khóa tìm kiếm của bạn là`;
+
+        const data = await this.prismaService.products.findMany({
+          orderBy: [{ sold_quantity: 'desc' }],
+          where: {
+            status: 'ACTIVE',
+            title: title,
+          },
+        });
+
+        if (data.length == 0) {
+          const response =
+            'Cảm ơn bạn đã quan tâm đến sản phẩm của chúng mình. Hiện tại, sản phẩm mà bạn đang tìm kiếm không có sẵn. Chúng mình rất tiếc vì sự bất tiện này.';
+          return { response, data };
+        }
+
         return { response, data };
       }
 
