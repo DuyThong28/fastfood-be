@@ -24,12 +24,16 @@ const entityTypesClient = new dialogflow.EntityTypesClient(CONFIGURATION);
 const entityOrderIdId =
   'projects/fastfood-egpp/agent/entityTypes/2b4a5a53-93ea-4dee-a7fc-478ec440f19a';
 
+const entityProductTitleId =
+  'projects/fastfood-egpp/agent/entityTypes/32471da4-a180-44f1-b157-5d15705479fd';
+
 @Injectable()
 export class ChatbotService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly statisticService: StatisticService,
   ) {}
+
   async chatbot(requestMessageDto: requestMessageDto) {
     try {
       const message = requestMessageDto.message;
@@ -132,6 +136,7 @@ export class ChatbotService {
       throw new Error(err.message);
     }
   }
+
   async updateEntityOrderId(orderId: string) {
     try {
       const [entityType] = await entityTypesClient.getEntityType({
@@ -159,6 +164,7 @@ export class ChatbotService {
       throw new Error(err.message);
     }
   }
+
   async deleteEntityOrderId(orderId: string) {
     try {
       const [entityType] = await entityTypesClient.getEntityType({
@@ -196,6 +202,60 @@ export class ChatbotService {
       if (existingValues.includes(category)) {
         const entityIndex = entityType.entities.findIndex(
           (entity) => entity.value === category,
+        );
+
+        entityType.entities.splice(entityIndex, 1);
+      }
+
+      const updateEntityRequest = {
+        entityType: entityType,
+      };
+
+      await entityTypesClient.updateEntityType(updateEntityRequest);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async updateEntityTitle(title: string, synonyms: string[]) {
+    try {
+      const [entityType] = await entityTypesClient.getEntityType({
+        name: entityProductTitleId,
+      });
+
+      const newEntityValue = title;
+
+      const existingValues = entityType.entities.map((entity) => entity.value);
+      if (existingValues.includes(newEntityValue)) {
+        return;
+      }
+
+      entityType.entities.push({
+        value: newEntityValue,
+        synonyms: synonyms,
+      });
+
+      const updateEntityRequest = {
+        entityType: entityType,
+      };
+
+      await entityTypesClient.updateEntityType(updateEntityRequest);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async deleteEntityTitle(title: string) {
+    try {
+      const [entityType] = await entityTypesClient.getEntityType({
+        name: entityProductTitleId,
+      });
+
+      const existingValues = entityType.entities.map((entity) => entity.value);
+
+      if (existingValues.includes(title)) {
+        const entityIndex = entityType.entities.findIndex(
+          (entity) => entity.value === title,
         );
 
         entityType.entities.splice(entityIndex, 1);
