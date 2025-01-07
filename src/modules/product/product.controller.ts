@@ -31,6 +31,7 @@ import { PageResponseDto } from 'src/utils/page_response.dto';
 import { PageResponseMetaDto } from 'src/utils/page_response_meta.dto';
 import { PageOptionsDto } from 'src/utils/page_option.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ChatbotService } from '../chatbot/chatbot.service';
 
 const {
   PRODUCTS: {
@@ -51,7 +52,10 @@ const {
 @ApiTags(DOCUMENTATION.TAGS.PRODUCT)
 @Controller(BASE)
 export class ProductsController {
-  constructor(private readonly productService: ProductsService) {}
+  constructor(
+    private readonly productService: ProductsService,
+    private readonly chatbotService: ChatbotService,
+  ) {}
   @ApiOperation({
     summary: 'Get all products',
     description: 'Allow admin/ customer',
@@ -131,6 +135,7 @@ export class ProductsController {
       images,
     );
     const message = 'Create product successfully';
+    await this.chatbotService.updateEntityTitle(body.title, [body.title]);
     return new StandardResponse(newProduct, message, HttpStatusCode.CREATED);
   }
   @ApiOperation({
