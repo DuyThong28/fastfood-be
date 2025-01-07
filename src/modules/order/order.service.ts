@@ -389,7 +389,7 @@ export class OrderService {
       const orderId = dto.orderId;
       const amount = Number(order.total_price);
       const requestType = 'captureWallet';
-      const extraData = 'bookstore';
+      const extraData = 'FastFood';
 
       const rawSignature =
         'accessKey=' +
