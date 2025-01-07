@@ -95,7 +95,10 @@ export class ChatbotService {
           orderBy: [{ sold_quantity: 'desc' }],
           where: {
             status: 'ACTIVE',
-            title: title,
+            title: {
+              contains: title ? title : undefined,
+              mode: 'insensitive',
+            },
           },
         });
 
