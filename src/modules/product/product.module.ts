@@ -3,10 +3,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { ProductsController } from './product.controller';
 import { ProductsService } from './product.service';
 import { CategoriesModule } from '../category/category.module';
-import { ChatbotModule } from '../chatbot/chatbot.module';
 
 @Module({
-  imports: [PrismaModule, CategoriesModule, ChatbotModule],
+  imports: [PrismaModule, CategoriesModule],
   providers: [ProductsService],
   controllers: [ProductsController],
   exports: [ProductsService],
