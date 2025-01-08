@@ -221,16 +221,18 @@ export class ProductsService {
         }
         imageUrls = uploadImagesData.urls;
       }
+      const { categoryId, image_url, ...dtoExcept } = dto;
       return await this.prismaService.$transaction(async (tx) => {
         const updatedProduct = await tx.products.update({
           where: { id },
           data: {
-            title: dto.title,
-            description: dto.description,
+            ...dtoExcept,
+            ...(categoryId && {
+              Category: { connect: { id: dto.categoryId } },
+            }),
             image_url: imageUrls.length
-              ? [...(dto.image_url ? dto.image_url : []), ...imageUrls]
+              ? [...(image_url ? image_url : []), ...imageUrls]
               : existingProduct.image_url,
-            price: dto?.price ?? existingProduct.price,
           },
         });
         return updatedProduct;
