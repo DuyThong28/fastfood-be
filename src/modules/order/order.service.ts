@@ -250,6 +250,31 @@ export class OrderService {
             where: { id },
             data: { status: dto.status },
           });
+          const order = await tx.orders.findUnique({
+            where: { id: updatedOrder.id },
+            include: {
+              OrderItems: {
+                include: {
+                  product: true,
+                },
+              },
+            },
+          });
+          const user = await tx.users.findUnique({
+            where: { id: order.user_id },
+          });
+          await this.emailService.sendOrderRejected({
+            user,
+            order: {
+              ...order,
+              total_price: Number(order.total_price),
+              OrderItems: order.OrderItems.map((item) => ({
+                ...item,
+                price: Number(item.price),
+                product: item.product,
+              })),
+            },
+          });
           return updatedOrder;
         });
       } catch (error) {
@@ -274,8 +299,58 @@ export class OrderService {
           data: { sold_quantity: product.sold_quantity + orderItem.quantity },
         });
       }
+      const order = await this.prisma.orders.findUnique({
+        where: { id: id },
+        include: {
+          OrderItems: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+      const user = await this.prisma.users.findUnique({
+        where: { id: order.user_id },
+      });
+      await this.emailService.sendOrderSuccess({
+        user,
+        order: {
+          ...order,
+          total_price: Number(order.total_price),
+          OrderItems: order.OrderItems.map((item) => ({
+            ...item,
+            price: Number(item.price),
+            product: item.product,
+          })),
+        },
+      });
+    } else if (dto.status === ORDER_STATUS.DELIVERED) {
+      const order = await this.prisma.orders.findUnique({
+        where: { id: id },
+        include: {
+          OrderItems: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+      const user = await this.prisma.users.findUnique({
+        where: { id: order.user_id },
+      });
+      await this.emailService.sendOrderDelivering({
+        user,
+        order: {
+          ...order,
+          total_price: Number(order.total_price),
+          OrderItems: order.OrderItems.map((item) => ({
+            ...item,
+            price: Number(item.price),
+            product: item.product,
+          })),
+        },
+      });
     }
-
     return await this.prisma.orders.update({
       where: { id },
       data: { status: dto.status },
