@@ -82,6 +82,35 @@ export class OrderService {
                 status: ORDER_STATUS.PROCESSING as OrderStatus,
               },
             });
+            const orderItems = dto.items.map((item) => {
+              const { price, finalPrice } = productPriceMap.get(item.productId);
+              const totalPrice = Number(finalPrice) * item.quantity;
+              return {
+                order_id: orderTemp.id,
+                product_id: item.productId,
+                quantity: item.quantity,
+                price,
+                total_price: totalPrice,
+              };
+            });
+            await tx.orderItems.createMany({ data: orderItems });
+            const totalPrice = orderItems.reduce(
+              (acc, item) => acc + item.total_price,
+              0,
+            );
+            const updatedOrder = await tx.orders.update({
+              where: { id: orderTemp.id },
+              data: {
+                total_price: totalPrice,
+              },
+              include: {
+                OrderItems: {
+                  include: {
+                    product: true,
+                  },
+                },
+              },
+            });
             order = await tx.orders.findFirst({
               where: { id: orderTemp.id },
               include: {
@@ -94,8 +123,17 @@ export class OrderService {
             });
             await this.emailService.sendOrderProcessing({
               user: user,
-              order: order,
+              order: {
+                ...order,
+                total_price: Number(order.total_price),
+                OrderItems: order.OrderItems.map((item) => ({
+                  ...item,
+                  price: Number(item.price),
+                  product: item.product,
+                })),
+              },
             });
+            return updatedOrder;
           } else {
             const orderTemp = await tx.orders.create({
               data: {
@@ -624,7 +662,7 @@ export class OrderService {
             OrderItems: order.OrderItems.map((item) => ({
               ...item,
               price: Number(item.price),
-              Product: item.product,
+              product: item.product,
             })),
           },
         });
