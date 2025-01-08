@@ -11,7 +11,13 @@ import { EmailModule } from '../email/email.module';
 @Module({
   providers: [CartsService, OrderService],
   controllers: [CartController],
-  imports: [PrismaModule, OrdersModule, ChatbotModule, GeminiModule, EmailModule],
+  imports: [
+    PrismaModule,
+    OrdersModule,
+    ChatbotModule,
+    GeminiModule,
+    EmailModule,
+  ],
   exports: [CartsService],
 })
 export class CartsModule {}

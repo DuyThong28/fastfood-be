@@ -92,7 +92,10 @@ export class OrderService {
                 },
               },
             });
-            await this.emailService.sendOrderProcessing({ user, order });
+            await this.emailService.sendOrderProcessing({
+              user: user,
+              order: order,
+            });
           } else {
             const orderTemp = await tx.orders.create({
               data: {

@@ -5,5 +5,5 @@ export class OrderItemTemplateDto {
   order_id: string;
   quantity: number;
   price: number;
-  Product: ProductTemplateDto;
+  product: ProductTemplateDto;
 }

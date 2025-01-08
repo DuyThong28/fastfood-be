@@ -46,15 +46,15 @@ export const OrderSuccess = ({ order, userName }: OrderSuccessProps) => {
           </thead>
           <tbody>
             {order.OrderItems.map((orderItem) => (
-              <tr key={orderItem.Product.id}>
+              <tr key={orderItem.product.id}>
                 <td style={tableCellStyle}>
                   <img
-                    src={orderItem.Product.image_url[0]}
+                    src={orderItem.product.image_url[0]}
                     alt="Product Image"
                     style={imageStyle}
                   />
                 </td>
-                <td style={tableCellStyle}>{orderItem.Product.title}</td>
+                <td style={tableCellStyle}>{orderItem.product.title}</td>
                 <td style={tableCellStyle}>{orderItem.quantity}</td>
                 <td style={tableCellStyle}>{orderItem.price} VND</td>
               </tr>
