@@ -13,7 +13,7 @@ import { ProductQuery } from './query/product.query';
 export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAllProducts(productQuery: ProductQuery) {
+  async getAllProducts(productQuery: ProductQuery, categoryStatus?: boolean) {
     const AND = [
       {
         price: {
@@ -31,6 +31,13 @@ export class ProductsService {
         ? [
             {
               Category: { id: productQuery.categoryId },
+            },
+          ]
+        : []),
+      ...(categoryStatus !== undefined
+        ? [
+            {
+              Category: { is_disable: categoryStatus },
             },
           ]
         : []),
