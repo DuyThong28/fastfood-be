@@ -258,6 +258,24 @@ export class OrderService {
       }
     }
 
+    if (dto.status === ORDER_STATUS.SUCCESS) {
+      const orderItems = await this.prisma.orderItems.findMany({
+        where: { order_id: id },
+      });
+
+      for (const orderItem of orderItems) {
+        const product = await this.prisma.products.findUnique({
+          where: { id: orderItem.product_id },
+          select: { sold_quantity: true },
+        });
+
+        await this.prisma.products.update({
+          where: { id: orderItem.product_id },
+          data: { sold_quantity: product.sold_quantity + orderItem.quantity },
+        });
+      }
+    }
+
     return await this.prisma.orders.update({
       where: { id },
       data: { status: dto.status },
